@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>eFaktúra XML Viewer</title>
+<meta name="description" content="Interný prehliadač a validátor e-faktúr Peppol BIS Billing 3.0 (UBL 2.1) so slovenskými kontrolami.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='5' y='2' width='22' height='28' rx='3' fill='%231f5fd6'/%3E%3Cpath d='M10 10h12M10 15h12M10 20h7' stroke='%23fff' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+/*INJECT:CSS*/
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><rect x="5" y="2" width="22" height="28" rx="3"/><path d="M10 10h12M10 15h12M10 20h7"/></svg>
+    <div>
+      <div class="b-name">eFaktúra XML Viewer</div>
+      <div class="b-sub">Peppol BIS Billing 3.0 · EN 16931 · SK pravidlá</div>
+    </div>
+  </div>
+  <div class="tools">
+    <button class="btn primary" data-action="open">Otvoriť XML…</button>
+    <div class="seg" role="group" aria-label="Zobrazenie">
+      <button class="btn toggle" data-opt="showBT" aria-pressed="false" title="Zobraziť kód BT pri každom údaji">BT kódy</button>
+      <button class="btn toggle" data-opt="showEmpty" aria-pressed="false" title="Zobraziť dôležité polia, ktoré v XML chýbajú">Prázdne polia</button>
+      <button class="btn toggle" data-opt="fixMoj" aria-pressed="false" title="Zobraziť opravenú diakritiku, ak je text v XML poškodený">Opraviť diakritiku</button>
+    </div>
+    <button class="btn" id="btn-print" title="Vytlačiť vizuál alebo ho uložiť ako PDF">Tlačiť</button>
+    <button class="btn icon" id="btn-theme" title="Téma"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7"/><path d="M10 3a7 7 0 0 1 0 14z"/></svg></button>
+  </div>
+</header>
+<nav id="files" class="files" hidden></nav>
+<input type="file" id="file-input" accept=".xml,text/xml,application/xml" multiple hidden>
+
+<main class="layout">
+  <section id="empty" class="empty">
+    <div class="drop">
+      <svg class="drop-ic" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 4h14l10 10v28a2 2 0 0 1-2 2H14a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M28 4v10h10"/><path d="M19 27l4 4 7-8"/></svg>
+      <h1>Pretiahnite sem XML e-faktúru</h1>
+      <p>UBL 2.1 Invoice alebo CreditNote podľa Peppol BIS Billing 3.0. Otvoriť môžete aj viac súborov naraz alebo vložiť XML zo schránky (Ctrl+V).</p>
+      <div class="drop-act">
+        <button class="btn primary lg" data-action="open">Vybrať súbor…</button>
+        <button class="btn lg" data-action="demo">Načítať ukážku</button>
+      </div>
+      <ul class="feat">
+        <li><b>Vizuál faktúry s pôvodom údajov</b> – každý údaj je prepojený s elementom v XML (BT kód, XPath, číslo riadku).</li>
+        <li><b>Oficiálna validácia</b> – Schematron EN 16931 + Peppol BIS 3.0 (<span id="rules-ver"></span>), rovnaké pravidlá ako prístupové body Peppol.</li>
+        <li><b>SK kontroly</b> – Peppol ID 0245:DIČ, IČO, IČ DPH, IBAN/BIC, variabilný symbol, DUZP, poškodená diakritika, prílohy.</li>
+        <li><b>Lokálne a offline</b> – súbory sa nikam neodosielajú, všetko beží iba vo vašom prehliadači.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="left" class="left">
+    <div class="left-bar"><span id="doc-name"></span><span class="hint">Kliknite na údaj → zobrazí sa jeho zdroj v XML · podržte myš pre BT a XPath</span></div>
+    <div id="paper"></div>
+  </section>
+  <div id="gutter" class="gutter" title="Ťahaním zmeníte šírku panelov"></div>
+  <section id="right" class="right">
+    <div id="status" class="status"></div>
+    <div id="inspector" class="inspector"></div>
+    <nav class="tabs" role="tablist">
+      <button class="tab" data-tab="findings" role="tab">Nálezy <span id="tab-findings-n" class="badge"></span></button>
+      <button class="tab" data-tab="xml" role="tab">XML</button>
+      <button class="tab" data-tab="map" role="tab">Mapovanie polí</button>
+      <button class="tab" data-tab="att" role="tab">Prílohy <span id="tab-att-n" class="badge"></span></button>
+      <button class="tab" data-tab="about" role="tab">O nástroji</button>
+    </nav>
+    <div class="pane" data-pane="findings">
+      <div class="pane-bar">
+        <button class="fbtn" data-filter="all">Všetky <span class="n"></span></button>
+        <button class="fbtn err" data-filter="err">Chyby <span class="n"></span></button>
+        <button class="fbtn warn" data-filter="warning">Upozornenia <span class="n"></span></button>
+        <button class="fbtn info" data-filter="info">Info <span class="n"></span></button>
+      </div>
+      <div id="findings-list" class="pane-body"></div>
+    </div>
+    <div class="pane" data-pane="xml" hidden>
+      <div class="pane-bar"><span id="xml-info" class="muted small"></span><span class="sp"></span><button class="btn tiny toggle" data-opt="wrap" aria-pressed="false">Zalamovať riadky</button></div>
+      <div id="xml-body" class="pane-body xml"></div>
+    </div>
+    <div class="pane" data-pane="map" hidden>
+      <div class="pane-bar"><input id="map-q" type="search" placeholder="Hľadať BT, názov, hodnotu alebo XPath…"><label class="small chk"><input type="checkbox" id="map-missing"> zobraziť aj chýbajúce</label></div>
+      <div id="map-body" class="pane-body"></div>
+    </div>
+    <div class="pane" data-pane="att" hidden><div id="att-body" class="pane-body"></div></div>
+    <div class="pane" data-pane="about" hidden>
+      <div class="pane-body about">
+        <h3>Čo nástroj robí</h3>
+        <p>Zobrazí e-faktúru (UBL 2.1, Peppol BIS Billing 3.0) ako čitateľný doklad a pri každom údaji ukáže, z ktorého elementu XML pochádza – kód obchodného termínu (BT) podľa EN 16931, XPath a číslo riadku. Súčasne doklad overí oficiálnymi validačnými pravidlami a doplnkovými slovenskými kontrolami.</p>
+        <h3>Validácia</h3>
+        <ul>
+          <li><b>EN 16931 (CEN)</b> a <b>Peppol BIS Billing 3.0</b> – oficiálne Schematron pravidlá (<span id="about-rules"></span>), rovnaké, aké používajú prístupové body Peppol. Ak doklad nevyhovuje týmto pravidlám, sieť Peppol ho odmietne.</li>
+          <li><b>SK kontroly</b> – interné doplnkové kontroly podľa požiadaviek Finančnej správy SR. Nie sú to oficiálne validačné pravidlá; upozorňujú na nedostatky, ktoré oficiálna validácia nezachytí.</li>
+          <li><b>XML</b> – kontrola, či je súbor korektné XML v kódovaní UTF-8.</li>
+        </ul>
+        <h3>SK kontroly</h3>
+        <table class="map small">
+          <tbody>
+            <tr><td><code>SK-PEPPOL-01/02</code></td><td>Peppol ID (BT-34/BT-49) slovenského subjektu musí byť <code>0245:DIČ</code> (10 číslic) – PASR SK, FAQ FS SR č. 23.</td></tr>
+            <tr><td><code>SK-ID-01</code></td><td>IČ DPH v tvare SK + 10 číslic, deliteľné 11.</td></tr>
+            <tr><td><code>SK-ID-02/03</code></td><td>IČO v BT-30/BT-47 (8 číslic, schéma 0158), nie IČ DPH.</td></tr>
+            <tr><td><code>SK-LEG-01/02</code></td><td>Zápis v obchodnom registri (BT-33, § 3a ObZ) a úplná adresa (§ 74 zákona o DPH).</td></tr>
+            <tr><td><code>SK-DATE-01..03</code></td><td>DUZP v BT-7, ak sa líši od dátumu vyhotovenia; BT-8 sa v SK nepoužíva; splatnosť po vyhotovení.</td></tr>
+            <tr><td><code>SK-PAY-01..09</code></td><td>IBAN (kontrolný súčet), BIC/SWIFT v BT-86 (formát, zhoda s bankou podľa IBAN), variabilný symbol v BT-83, kód spôsobu platby.</td></tr>
+            <tr><td><code>SK-VAT-01/02</code></td><td>Kategórie DPH používané v SR a platné sadzby (23 %, 19 %, 5 % od 1. 1. 2025).</td></tr>
+            <tr><td><code>SK-ENC-01</code></td><td>Poškodená diakritika (UTF-8 dvakrát prekódované cez Windows-1250/1252).</td></tr>
+            <tr><td><code>SK-ATT-01..03</code></td><td>Prílohy – názov súboru, platnosť base64, typ obsahu, veľkosť.</td></tr>
+            <tr><td><code>SK-REF-01</code></td><td>Podozrivé mapovanie referencií (napr. číslo zmluvy = číslo faktúry).</td></tr>
+          </tbody>
+        </table>
+        <p class="small muted">SK TDD UUID v pätičke vizuálu je vypočítaný podľa workbooku FS SR (UUIDv5 z BT-34 schemeID, BT-34, BT-3, BT-1, BT-2) – informatívne.</p>
+        <h3>Zdroje</h3>
+        <ul class="small">
+          <li><a href="https://docs.peppol.eu/poacc/billing/3.0/" target="_blank" rel="noopener">Peppol BIS Billing 3.0 – dokumentácia a validačné artefakty</a></li>
+          <li><a href="https://www.financnasprava.sk/sk/podnikatelia/dane/dan-z-pridanej-hodnoty/e-faktura" target="_blank" rel="noopener">Finančná správa SR – eFaktúra (PASR, transpozícia Peppol BIS v1.12, FAQ)</a></li>
+          <li><a href="https://docs.peppol.eu/tdd/sk/tdd-sk/" target="_blank" rel="noopener">Peppol – Slovak Republic Tax Data Document</a></li>
+          <li>Slovenské názvy a popisy BT a pravidiel EN 16931: workbook FS SR „Transpozície štandardu Peppol BIS v podmienkach Slovenskej legislatívy“ v1.12 (14. 10. 2026).</li>
+        </ul>
+        <h3>Ochrana údajov</h3>
+        <p class="small">Nástroj je jeden HTML súbor bez pripojenia na internet. Otvorené XML sa spracúva len v pamäti prehliadača a nikam sa neodosiela. Odkazy na dokumentáciu sa otvárajú len po kliknutí.</p>
+        <h3>Aktualizácia pravidiel</h3>
+        <p class="small">OpenPeppol vydáva nové pravidlá spravidla v máji a novembri. Aktualizáciu spustíte skriptom <code>viewer-src/tools/update_rules.py</code> (stiahne aktuálne Schematron súbory, skompiluje ich a znovu zostaví tento HTML súbor). Zostavené: <span id="about-build"></span>.</p>
+        <h3>Licencie</h3>
+        <p class="small">Validačné artefakty EN 16931 © CEN (EUPL 1.2), pravidlá Peppol © OpenPeppol AISBL. Schematron skompilovaný nástrojom SchXslt (David Maus, MIT).</p>
+        <details class="small"><summary>SaxonJS © Saxonica Ltd – licencia</summary><pre class="lic" id="saxon-license"><!--INJECT:SAXON_LICENSE--></pre></details>
+      </div>
+    </div>
+  </section>
+</main>
+<div class="drop-overlay"><div>Pustite XML súbory sem</div></div>
+<div id="tip" class="tip" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script type="text/plain" id="demo-xml"><!--INJECT:DEMO--></script>
+<script type="application/octet-stream" id="rules-cen"><!--INJECT:RULES_CEN--></script>
+<script type="application/octet-stream" id="rules-peppol"><!--INJECT:RULES_PEPPOL--></script>
+<script>
+/*INJECT:DATA*/
+</script>
+<script>
+/*INJECT:SAXON*/
+</script>
+<script>
+/*INJECT:APP*/
+document.addEventListener('DOMContentLoaded', () => {
+  const m = window.RULES_META || {};
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('about-rules', m.long || m.label || '');
+  set('about-build', m.built || '');
+});
+</script>
+</body>
+</html>

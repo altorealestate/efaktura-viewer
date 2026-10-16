@@ -1,0 +1,13 @@
+# Skutočné faktúry a iné XML v koreni projektu sa NIKDY nenahrávajú (obsahujú firemné údaje)
+/*.xml
+/*.pdf
+/vzorky/
+/faktury/
+
+# Python, systémové a dočasné súbory
+__pycache__/
+*.pyc
+desktop.ini
+Thumbs.db
+~$*
+.DS_Store

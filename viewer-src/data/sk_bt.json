@@ -1,0 +1,1470 @@
+{
+"BT-1": {
+"n": "Číslo faktúry",
+"d": "Jedinečná identifikácia faktúry.\nPoradové číslo faktúry.",
+"u": "Poradové číslo požadované v čl. 226 ods. 2 Smernice 2006/112/ES [2], ktoré jednoznačne určuje faktúru v rámci obchodného kontextu, časového rámca, prevádzkových systémov a evidencie predávajúceho. Môže byť založené na jednej alebo viacerých sériách čísel, ktoré môžu obsahovať alfanumerické znaky. Nie je potrebné používať žiadnu schému identifikácie.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. c)",
+"law": "§ 74 ods. 01 písm. c)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-ID/"
+},
+"BT-2": {
+"n": "Dátum vystavenia faktúry",
+"d": "Dátum, kedy bola faktúra vystavená.\nDátum vyhotovenia faktúry.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. e)",
+"law": "§ 74 ods. 01 písm. e)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-IssueDate/"
+},
+"BT-3": {
+"n": "Kód typu faktúry",
+"d": "Kód, ktorý špecifikuje funkčný typ faktúry.",
+"u": "Obchodné faktúry a dobropisy sú definované podľa položiek číselníka UNTDID 1001 [6].\n Ostatné položky UNTDID 1001 [6] sa môžu u konkrétnych faktúr alebo dobropisov použiť podľa potreby.",
+"r": "vyžaduje sa",
+"x": "nebude doplnené do § 74\nbude riešené v podzákonnej norme",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-InvoiceTypeCode/"
+},
+"BT-5": {
+"n": "Kód meny faktúry",
+"d": "Mena, v ktorej sú uvádzané všetky sumy faktúry, okrem celkovej sumy DPH v účtovnej mene.",
+"u": "Na faktúre sa v súlade s článkom 230 Smernice 2006/112/ES o DPH [2] používa len jedna mena okrem Celkovej sumy DPH za faktúru v účtovnej mene (BT-111).\n Zoznamy platných mien sú registrované v agentúre pre vedenie kódov ISO 4217 v zozname „Kódy pre meny a fondy“.",
+"r": "vyžaduje sa",
+"x": "nebude doplnené do § 74\nbude riešené v podzákonnej norme",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cbc-DocumentCurrencyCode/"
+},
+"BT-6": {
+"n": "Kód účtovnej meny DPH",
+"d": "Mena používaná na účtovanie o DPH\na vykazovanie DPH, ktorá je akceptovaná alebo vyžadovaná v krajine predávajúceho.",
+"u": "Používa sa v kombinácii s Celkovou sumou DPH za faktúru v účtovnej mene (BT-111), ak sa líši kód účtovnej meny DPH od kódu meny faktúry.\n Zoznamy platných mien sú registrované v agentúre pre vedenie kódov ISO 4217 v zozname „Kódy pre meny a fondy“. Viac informácií pozri v článku 230 Smernice Rady 2006/112/ES [2].",
+"r": "podmienene vyžadované",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cbc-TaxCurrencyCode/"
+},
+"BT-7": {
+"n": "Dátum uskutočnenia zdaniteľného plnenia",
+"u": "Dátum uskutočnenia zdaniteľného plnenia je obvykle dátum, kedy príde k dodaniu tovaru alebo poskytnutiu služby („základný okamih zdanenia“). Existujú určité odchýlky.\n Viac informácií pozri v článku 226 ods. 7 Smernice Rady 2006/112/ES [2]. Tento prvok sa vyžaduje, ak sa dátum uskutočnenia zdaniteľného plnenia líši od dátumu vystavenia faktúry.\n Kupujúci aj predávajúci by mali dátum uskutočnenia zdaniteľného plnenia používať, pokiaľ ho predávajúci uvedie. Použitie BT-7 a BT-8 sa vzájomne vylučuje.",
+"r": "podmienene vyžadované",
+"x": "§ 74 ods. 1 písm. d)\nDátum uskutočnenia zdaniteľného plnenia. Technicky: VAT point date. Ide o dátum vzniku daňovej povinnosti = dátum dodania tovaru alebo služby alebo dátum prijatia platby (§ 74 ods. 1 psím. d) zákon o DPH). Zákon o DPH však určuje, že dátum dodania T/S/prijatia platby sa uvedie AK je ho možné určiť a je odlišný od dátumu vyhotovenia faktúry (§ 74 ods. 1 písm. e). Dátum vyhotovenia faktúry je BT-2 (kardinalita 1..1). Preto tento dátum sa uvedie na faktúre len ak sa platí: BT-7 ≠ BT-2 a BT-7 je známy.",
+"law": "§ 74 ods. 01 písm. d)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cbc-TaxPointDate/"
+},
+"BT-8": {
+"n": "Kód dátumu uskutočnenia zdaniteľného plnenia",
+"d": "Kód dátumu, kedy musí predávajúci a kupujúci zaúčtovať DPH.",
+"u": "Kód rozlišuje nasledujúce položky UNTDID 2005 [6]:\n - Dátum vystavenia faktúry\n - Dátum dodania, skutočný\n - Zaplatené k dátumu. Kód dátumu uskutočnenia zdaniteľného plnenia sa použije, ak Dátum uskutočnenia zdaniteľného plnenia nie je pri vystavení faktúry známy. Použitie BT-8 a BT-7 sa vzájomne vylučuje.",
+"r": "nevyžaduje sa",
+"x": "DUZP (BT-7 TaxPointDate) je pre SK verziu povinné, tak sa tento element nebude využívať => vôbec nepoužívať",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoicePeriod/cbc-DescriptionCode/"
+},
+"BT-9": {
+"n": "Dátum splatnosti",
+"d": "Dátum, kedy je platba splatná.",
+"u": "Dátum splatnosti vyjadruje dátum splatnosti netto. U čiastkových platieb uvádza dátum splatnosti prvej čistej platby. Zodpovedajúci popis zložitejších platobných podmienok možno uviesť v BT-20 Platobné podmienky.",
+"r": "nevyžaduje sa",
+"x": "nebude doplnené do § 74\nbude riešené v podzákonnej norme\nDátum splatnosti- nejde o povinný údaj podľa zákona o DPH. Údaj môže mať analytický význam, no nie je právny základ vyžadovať ho povinne uvádzať na e-faktúre.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-DueDate/"
+},
+"BT-10": {
+"n": "Referenčné označenie kupujúceho",
+"d": "Identifikátor priradený kupujúcim a používaný na účely interného smerovania.",
+"u": "Identifikátor definuje kupujúci (napr. kontaktné ID, oddelenie, ID útvaru, kód projektu), ale predávajúci ho uvádza na faktúre.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-BuyerReference/"
+},
+"BT-11": {
+"n": "Referenčné označenie projektu",
+"d": "Identifikácia projektu, na ktorý sa vzťahuje faktúra.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-ProjectReference/cbc-ID/"
+},
+"BT-12": {
+"n": "Referenčné označenie zmluvy",
+"d": "Identifikácia zmluvy.",
+"u": "Identifikátor zmluvy by mal byť jedinečný v kontexte konkrétneho obchodného vzťahu a na vymedzené časové obdobie.",
+"r": "nevyžaduje sa",
+"x": "Nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-ContractDocumentReference/cbc-ID/"
+},
+"BT-13": {
+"n": "Referenčné označenie objednávky",
+"d": "Identifikátor príslušnej objednávky vydaný kupujúcim.",
+"r": "nevyžaduje sa",
+"x": "Nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-OrderReference/cbc-ID/"
+},
+"BT-14": {
+"n": "Referenčné označenie predajnej zákazky",
+"d": "Identifikátor príslušnej predajnej zákazky vydaný predávajúcim.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-OrderReference/cbc-SalesOrderID/"
+},
+"BT-15": {
+"n": "Referenčné označenie potvrdenia príjmu tovaru",
+"d": "Identifikátor príslušného potvrdenia príjmu tovaru.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-ReceiptDocumentReference/cbc-ID/"
+},
+"BT-16": {
+"n": "Referenčné označenie avíza o odoslaní tovaru",
+"d": "Identifikátor príslušného avíza o odoslaní tovaru.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-DespatchDocumentReference/cbc-ID/"
+},
+"BT-17": {
+"n": "Referenčné označenie ponuky (pozor zmena: označenie VO sme dali radšej BT-12 - v zmysle UBL2.1 Faktúry)",
+"d": "Identifikácia výzvy na podanie ponuky, ku ktorej sa faktúra vzťahuje. Indentifikácia verejného obstarávania",
+"u": "V niektorých krajinách sa uvádza odkaz na výzvu na podanie ponúk, ktorá viedla k danej zákazke. V prípade nadlitmitných a podlimitných zákaziek sa uvádza číslo oznámenia vo vestníku verejného obstarávania alebo úradnom vestníku obstarávania EÚ v jej elektronickej verzii TED (Tenders Electronic Daily). V prípade zákaziek s nízkou hodnotou sa uvedie vlastné označenie kupujúceho.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-OriginatorDocumentReference/cbc-ID/"
+},
+"BT-18": {
+"n": "Identifikátor fakturovaného predmetu",
+"d": "Identifikátor predmetu, ktorý je základom faktúry, uvádza predávajúci.",
+"u": "Môže ísť o číslo predplatného, telefónne číslo, merač spotreby, vozidlo, osobu atď., podľa potreby.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AdditionalDocumentReference/cbc-ID/"
+},
+"BT-18-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor fakturovaného predmetu.",
+"u": "Príjemcovi nemusí byť jasné, aká schéma sa pre identifikátor používa, v tom prípade by sa mal použiť podmienený identifikátor schémy zvolený z položiek číselníka UNTDID 1153 [6].",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AdditionalDocumentReference/cbc-ID/schemeID/"
+},
+"BT-19": {
+"n": "Referencia pre zaúčtovanie kupujúcemu",
+"d": "Textová hodnota, ktorá špecifikuje, kam sa príslušné údaje zaúčtujú vo finančnom účtovníctve kupujúceho.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cbc-AccountingCost/"
+},
+"BT-20": {
+"n": "Platobné podmienky",
+"d": "Textový popis platobných podmienok, ktoré platia pre splatnú sumu (vrátane popisu prípadného penále).",
+"u": "Tento prvok môže obsahovať viac riadkov a viac termínov.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentTerms/cbc-Note/"
+},
+"BG-1": {
+"n": "POZNÁMKA K FAKTÚRE",
+"d": "Skupina obchodných termínov uvádzajúcich textové poznámky relevantné pre faktúru, spolu s uvedením subjektu poznámky.",
+"r": "nevyžaduje sa",
+"x": "Opravný doklad podľa §25a nie je faktúrou čo je vyslovene uvedené v § 71 ods. 2 zákona o DPH a preto by sa naň nemala vzťahovať povinnosť vyhotoviť ho v súlade s normou a teda by mal byť mimo siete Peppol."
+},
+"BT-21": {
+"n": "Kód subjektu poznámky k faktúre",
+"d": "Subjekt textovej poznámky v BT-22.",
+"u": "Volí sa z položiek číselníka UNTDID 4451 [6].",
+"r": "nevyžaduje sa"
+},
+"BT-22": {
+"n": "Poznámka k faktúre",
+"d": "Textová poznámka uvádzajúca neštruktúrované informácie relevantné pre faktúru ako celok.",
+"u": "Napríklad dôvod opravy alebo poznámka o priradení v prípade faktoringu faktúry",
+"r": "nevyžaduje sa",
+"x": "Pole BT-22 - poznámka k faktúre je pole s neštruktúrovaným textom - poznámkou. Samostatné pole pre osobitnú úpravu DPH na základe prijatia platby absentuje a osobitná úprava nie je ani v číselníku VATEX pre EN normu. Riešenie je iba uviesť danú informáciu do poľa BT-22, alebo vytvoriť nové pole (predpokladám, že v istej miere nie je možné). Z pohľadu metodiky DPH je podľa čl. 226 bod 7a smernice o DPH povinnou náležitosťou faktúry aj označenie \"DPH sa uplatňuje na základe platieb\", ak daňová povinnosť vzniká v čase prijatia platby v súlade s článkom 66 písm. b) a právo odpočítať daň vzniká vtedy, keď vzniká daňová povinnosť v súvislosti s daňou, ktorá je odpočítateľná. V zákone o DPH máme túto povinnú náležitosť faktúry transponovanú v ustanovení § 68d ods. 4 zákona o DPH. Keďže uvedená informácia je v zmysle smernice o DPH povinnou náležitosťou faktúry, ak sa uplatňuje táto osobitná úprava, tak predpokladáme, že aj EN norma by s touto položkou mala počítať. Ak teda nie je pre túto položku vytvorené samostatné pole a EN norma neurčuje do akého poľa sa má informácia uviesť (?), podľa nášho názoru je, resp. bude potrebné pri vykázaní zohľadniť aj skutočnosť, či táto informácia bude aj predmetom digitálneho oznamovania pre tuzemské transakcie.\nPovinné náležitosti podľa § 74 ods. 1 písm. j) a n) zákona o DPH, nie sú podľa smernice ViDA povinnými údajmi, ktoré je potrebné oznámiť, preto ich ani návrh zákona pri povinnosti oznamovať údaje neupravuje. Sú ale povinnými údajmi pre vystavenie faktúry, preto musí byť možnosť ich uvedenia vo faktúre ako textové pole.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-Note/"
+},
+"BG-2": {
+"n": "RIADENIE PROCESOV",
+"d": "Skupina obchodných termínov poskytujúcich informácie o obchodnom procese a pravidlách platných pre faktúru.",
+"r": "vyžaduje sa"
+},
+"BT-23": {
+"n": "Typ obchodného procesu",
+"d": "Identifikuje kontext obchodného procesu, v ktorom sa transakcia objavuje, aby mohol kupujúci riadne spracovať faktúru.",
+"u": "Špecifikuje kupujúci.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cbc-ProfileID/"
+},
+"BT-24": {
+"n": "Identifikátor špecifikácie",
+"d": "Identifikácia špecifikácie obsahujúca úplný súbor pravidiel týkajúcich sa sémantického obsahu, kardinalít a obchodných pravidiel, s ktorými sú údaje obsiahnuté v dokumente v zhode.",
+"u": "Identifikuje súlad alebo zhodu s týmto dokumentom. Vyhovujúce faktúry špecifikujú: urn:cen.eu:en16931:2017. Faktúry vyhovujúce špecifikácii užívateľa môžu na tomto mieste danú špecifikáciu užívateľa identifikovať.\n Nie je potrebné používať žiadnu schému identifikácie.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-CustomizationID/"
+},
+"BG-3": {
+"n": "REFERENČNÉ OZNAČENIE PREDCHÁDZAJÚCEJ\nFAKTÚRY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o jednej alebo viacerých predchádzajúcich faktúrach.",
+"u": "Používa sa v prípade:\n - opravy predchádzajúcej faktúry\n - odkazu na predchádzajúce čiastkové faktúry v konečnej faktúre\n -odkazu na predchádzajúce zálohové faktúry v konečnej faktúre",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-BillingReference/"
+},
+"BT-25": {
+"n": "Referenčné označenie predchádzajúcej faktúry",
+"d": "Identifikácia faktúry, ktorú predávajúci zaslal už predtým.\nPoradové číslo pôvodnej faktúry, ktorým môže byť aj pôvodný identifikátor pokladničného dokladu podľa osobitného predpisu (zákon č. 289/2008 Z. z. o používaní elektronickej registračnej pokladnice a o zmene a doplnení zákona Slovenskej národnej rady č. 511/1992 Zb. o správe daní a poplatkov a o zmenách v sústave územných finančných orgánov v znení neskorších predpisov v znení neskorších predpisov) a údaje, ktoré sa menia",
+"r": "nevyžaduje sa",
+"x": "s účinnosťou od 1.7.2030 povinná náležitosť zákona o DPH na základe smernice ViDA 2025/516\nBude implemetnované od účinnosti eFaktúry v prostredí SR",
+"law": "§ 74 ods. 1 písm. p) - nová povinná náležitosť s účinnosťou od 1.7.2030 ods. 03 písm. c)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-BillingReference/"
+},
+"BT-26": {
+"n": "Dátum vystavenia predchádzajúcej faktúry",
+"d": "Dátum, kedy bola predchádzajúca faktúra vystavená.",
+"u": "Dátum vystavenia predchádzajúcej faktúry sa musí uviesť v prípade, že identifikátor predchádzajúcej faktúry nie je jedinečný.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-BillingReference/cac-InvoiceDocumentReference/cbc-IssueDate/"
+},
+"BG-4": {
+"n": "PREDÁVAJÚCI",
+"d": "Skupina obchodných termínov poskytujúcich informácie o predávajúcom.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/"
+},
+"BT-27": {
+"n": "Meno/názov predávajúceho",
+"d": "Úplné oficiálne meno/názov, pod ktorým je predávajúci registrovaný v národnom registri právnických osôb alebo ako zdaniteľná osoba alebo pod ktorým inak podniká ako fyzická osoba (fyzické osoby).\nMeno a priezvisko zdaniteľnej osoby alebo názov zdaniteľnej osoby.",
+"r": "vyžaduje sa",
+"x": "Podľa § 7 ObZ pri prevádzkovaní organizačnej zložky podniku sa používa obchodné meno podnikateľa s dodatkom, že ide o organizačnú zložku podniku.",
+"law": "§ 74 ods. 01 písm. a) ... 1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-RegistrationName/"
+},
+"BT-28": {
+"n": "Obchodné meno/názov predávajúceho",
+"d": "Meno/názov, pod ktorým je predávajúci známy, odlišné od mena/názvu predávajúceho (uvádzané aj ako obchodné meno/názov).\nMeno a priezvisko zdaniteľnej osoby alebo názov zdaniteľnej osoby.",
+"u": "Môže sa použiť, ak sa líši od mena/názvu\npredávajúceho.",
+"r": "nevyžaduje sa",
+"law": "§ 74 ods. 01 písm. a) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyName/cbc-Name/"
+},
+"BT-29": {
+"n": "Identifikátor predávajúceho",
+"d": "Identifikácia predávajúceho.",
+"u": "U mnohých systémov je identifikátor predávajúceho hlavnou informáciou. Je možné priradiť alebo špecifikovať viac identifikátorov predávajúceho. Môžu sa rozlišovať použitím rôznych schém identifikácie. Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor predávajúceho, ktorý priradil kupujúci.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyIdentification/cbc-ID/"
+},
+"BT-29-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor predávajúceho.",
+"u": "Ak sa použije, musí byť identifikátor schémy identifikácie zvolený z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyIdentification/cbc-ID/schemeID/"
+},
+"BT-30": {
+"n": "Identifikátor zákonnej registrácie predávajúceho",
+"d": "Identifikátor vydaný oficiálnym registračným subjektom, ktorý identifikuje predávajúceho ako právnickú alebo fyzickú osobu.",
+"u": "Ak identifikačná schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa, ak bolo IČO subjektu pridelené\nnejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/"
+},
+"BT-30-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor zákonnej registrácie predávajúceho.",
+"u": "Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa, ak bolo IČO subjektu pridelené",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/schemeID/"
+},
+"BT-31": {
+"n": "Identifikátor predávajúceho na účely DPH",
+"d": "Identifikátor predávajúceho na účely DPH (známy aj ako daňové identifikačné číslo predávajúceho pre DPH).\nIdentifikačné číslo pre daň, pod ktorým tovar alebo službu dodala.",
+"u": "Daňové identifikačné číslo na účely DPH s predponou vyjadrujúcou kód krajiny. Predávajúci registrovaný na DPH uvedie svoje IČ DPH, pokiaľ nevyužíva daňového zástupcu.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa, ak bolo IČ DPH subjektu pridelené\n§ 74 ods. 1 písm. a) Pozor pri fa za skupinu: § 74 ods. 6 = Ak tovar alebo službu dodáva skupina, uvedie sa vo faktúre ako údaj podľa odseku 1 písm. a) meno a adresa sídla, miesta podnikania, prípadne prevádzkarne člena skupiny, ktorý dodáva tovar alebo službu, a identifikačné číslo pre daň skupiny.",
+"law": "§ 74 ods. 01 písm. a) ... 3.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyTaxScheme/cbc-CompanyID/"
+},
+"BT-32": {
+"n": "Identifikátor daňovej registrácie predávajúceho",
+"d": "Miestna identifikácia predávajúceho (definovaná adresou predávajúceho) na daňové účely, alebo referenčný odkaz, ktorý predávajúcemu umožňuje uviesť jeho registrovaný daňový status.",
+"u": "Tieto informácie môžu ovplyvniť spôsob úhrady platby kupujúcim (napr. príspevky na sociálne zabezpečenie). Napr. v niektorých krajinách platí, že ak predávajúci nie je registrovaný ako platca dane, je kupujúci povinný zraziť sumu dane a zaplatiť ju v mene predávajúceho.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyTaxScheme/"
+},
+"BT-33": {
+"n": "Dodatočné právne údaje predávajúceho - Právna forma",
+"d": "Dodatočné právne údaje relevantné pre predávajúceho.",
+"u": "Napríklad základný kapitál.",
+"r": "podmienene vyžadované",
+"x": "§3a obchodného zákonníka: Každý podnikateľ je povinný na svojich obchodných listoch a objednávkach vyhotovených v písomnej alebo elektronickej forme (ďalej len „obchodné dokumenty“) uvádzať obchodné meno, sídlo alebo miesto podnikania, právnu formu právnickej osoby a identifikačné číslo, ak je pridelené. Podnikatelia zapísaní v obchodnom registri alebo v inej evidencii podnikateľov uvádzajú aj označenie registra, ktorý podnikateľa zapísal, a číslo zápisu. Ak podnikateľ na svojich obchodných dokumentoch uvádza výšku základného imania, musí uviesť aj rozsah jeho splatenia.\nDo tohto poľa uvádzať právnu formu, oddiel a vložku, do ktorej je zapísaná spoločnosť/živnostník v obchodnom/živnostenskom registri. \nNapríklad: <Spoločnosť s ručením obmedzeným> zapísaná do <Obchodného registra Okresného súdu Žilina>, oddiel <s.r.o.>, vložka číslo <číslo vložky> zo dňa <DD.MM.RRRR>",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyLegalForm/"
+},
+"BT-34": {
+"n": "Elektronická adresa predávajúceho",
+"d": "Identifikuje elektronickú adresu predávajúceho, na ktorú možno odoslať odozvu na faktúru na úrovni aplikácie.",
+"u": "Identifikátor schémy sa musí vybrať zo zoznamu,\nktorý je vedený v rámci nástroja Spájame Európu.",
+"r": "vyžaduje sa",
+"x": "Doplňujúca poznámka: tento atribút (BT-34) je potrebný pre generovanie UUID dokumentu, preto je povinný:\n“Invoice” document unique identifier \n“Invoice” documents are referenced by a UUID that uniquely identifies it. UUID version 5 [UUID] is used. This means that the same content invoice has the same invoice UUID, so if the content changes a new UUID is determined. The Invoice UUID is determined by C2 and C3 in the same way. Common programming languages (like Java, Python and C#) have mature libraries for generation of UUID Version 5.\nThe Invoice UUID is calculated based on a “name” containing values of these invoice fields:\n• BT-34 (attribute) scheme ID (mandatory)\n• BT-34 seller identifier ID (mandatory)\n• BT-03 invoice type code (mandatory)\n• BT-01 invoice number (mandatory)\n• BT-02 invoice date (mandatory) \nThe Invoice UUID MUST use this fixed namespace:\n3fd00464-9f15-52ce-8cdc-6dd374d5ad42\nNotes:\n• The above fields are all mandatory in the invoice, so the invoice will have already been rejected if any of the above are missing, in this case no TDD / UUIDv5 will be created.\n• All leading and trailing zeros should be removed from above values in the invoice\n• In the input string each value is separated with a single blank character (' ', ASCII 32)\n• Date format YYYY-MM-DD \n• The date value MUST be formatted according to the XML Schema date format rules and MUST NOT contain timezone information\n• The UUIDv5 'name' should use the UTF-8 character set.\nAn example UUIDv5:\n• input string: 0088 5060012349998 380 33445566 2026-01-13\n• output string: 3fd00464-9f15-52ce-8cdc-6dd374d5ad42",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cbc-EndpointID/"
+},
+"BT-34-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre elektronickú adresu predávajúceho.",
+"u": "Identifikátor schémy sa musí vybrať zo zoznamu,\nktorý je vedený v rámci nástroja Spájame Európu.",
+"r": "vyžaduje sa",
+"x": "Čiselník kódov uvádza pre Slovenskú republiku kod \"0245\" = DIČ",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cbc-EndpointID/schemeID/"
+},
+"BG-5": {
+"n": "POŠTOVÁ ADRESA PREDÁVAJÚCEHO",
+"d": "Skupina obchodných termínov poskytujúcich informácie o adrese predávajúceho.",
+"u": "Treba vyplniť dostatočné prvky adresy na splnenie zákonných požiadaviek.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/"
+},
+"BT-35": {
+"n": "Adresa predávajúceho riadok 1",
+"d": "Hlavný riadok adresy v adrese.\nAdresa jej sídla, miesta podnikania, prevádzkarne, bydliska alebo adresa miesta, kde sa obvykle zdržiava.",
+"u": "Obvykle názov ulice a číslo alebo poštová priehradka.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. a)\nNapriek tomu, že údaje (BT) o adrese majú v EN norme kardinalitu 0..1, zákon o DPH vyžaduje ich uvedenie na faktúre",
+"law": "§ 74 ods. 01 písm. a) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cbc-StreetName/"
+},
+"BT-36": {
+"n": "Adresa predávajúceho riadok 2",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností\ndoplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cbc-AdditionalStreetName/"
+},
+"BT-162": {
+"n": "Adresa predávajúceho riadok 3",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cac-AddressLine/cbc-Line/"
+},
+"BT-37": {
+"n": "Mesto predávajúceho",
+"d": "Všeobecne používaný názov mesta alebo obce, kde sa nachádza adresa predávajúceho. Adresa jej sídla, miesta podnikania, prevádzkarne, bydliska alebo adresa miesta, kde sa obvykle zdržiava.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. a)\nNapriek tomu, že údaje (BT) o adrese majú v EN norme kardinalitu 0..1, zákon o DPH vyžaduje ich uvedenie na faktúre",
+"law": "§ 74 ods. 01 písm. a) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cbc-CityName/"
+},
+"BT-38": {
+"n": "PSČ predávajúceho",
+"d": "Identifikátor adresovateľnej skupiny nemovitostí podľa príslušnej poštovej služby. Adresa jej sídla, miesta podnikania, prevádzkarne, bydliska alebo adresa miesta, kde sa obvykle zdržiava.",
+"u": "Napríklad PSČ.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. a)\nNapriek tomu, že údaje (BT) o adrese majú v EN norme kardinalitu 0..1, zákon o DPH vyžaduje ich uvedenie na faktúre",
+"law": "§ 74 ods. 01 písm. a) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cbc-PostalZone/"
+},
+"BT-39": {
+"n": "Nižší správny celok krajiny predávajúceho",
+"d": "Nižší správny celok krajiny.",
+"u": "Napríklad kraj, okres, štát, provincia atď.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cbc-CountrySubentity/"
+},
+"BT-40": {
+"n": "Kód krajiny predávajúceho",
+"d": "Kód, ktorý identifikuje krajinu.",
+"u": "Ak nie je špecifikovaný daňový zástupca,ide o krajinu, kde je splatná DPH. Zoznamy platných krajín sú registrované v agentúre pre správu kódov EN ISO 3166-1\n„Kódy pre názvy krajín a ich častí“.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"law": "§ 74 ods. 01 písm. a) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-PostalAddress/cac-Country/"
+},
+"BG-6": {
+"n": "KONTAKTNÉ ÚDAJE PREDÁVAJÚCEHO",
+"d": "Skupina obchodných termínov poskytujúcich kontaktné informácie predávajúceho.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/"
+},
+"BT-41": {
+"n": "Kontaktné miesto predávajúceho",
+"d": "Kontaktné miesto právnickej alebo fyzickej osoby.",
+"u": "Napríklad meno osoby, identifikácia kontaktu, oddelenia alebo kancelárie.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-Name/"
+},
+"BT-42": {
+"n": "Kontaktné telefónne číslo predávajúceho",
+"d": "Telefónne číslo kontaktného miesta.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-Telephone/"
+},
+"BT-43": {
+"n": "Kontaktná e-mailová adresa predávajúceho",
+"d": "E-mailová adresa kontaktného miesta.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingSupplierParty/cac-Party/cac-Contact/cbc-ElectronicMail/"
+},
+"BG-7": {
+"n": "KUPUJÚCI",
+"d": "Skupina obchodných termínov poskytujúcich informácie o kupujúcom.",
+"r": "vyžaduje sa",
+"x": "Zjednodušená faktúra podľa súčasného zákona o DPH § 74 ods. 3 písm. a) a b), ako aj návrhu zákona o DPH nie je elektronickou faktúrou. Nebude sa na ňu vzťahovať povinnosť vyhotovovať a odosielať ju ako elektronickú faktúru.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/"
+},
+"BT-44": {
+"n": "Meno/názov kupujúceho",
+"d": "Celé meno/názov kupujúceho.\nMeno a priezvisko príjemcu tovaru alebo služby alebo názov príjemcu tovaru alebo služby.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. b)\nViď odpoveď k názvu predávajúceho. Organizačná zložka je pobočkou zahraničnej spoločnosti na Slovensku.",
+"law": "§ 74 ods. 01 písm. b) ... 1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyLegalEntity/cbc-RegistrationName/"
+},
+"BT-45": {
+"n": "Obchodné meno/názov kupujúceho",
+"d": "Meno/názov, pod ktorým je kupujúci známy, odlišné od mena/názvu kupujúceho (uvádzané aj ako obchodné meno/názov).\nMeno a priezvisko príjemcu tovaru alebo služby alebo názov príjemcu tovaru alebo služby.",
+"u": "Môže sa použiť, ak sa líši od mena/názvu kupujúceho.",
+"r": "nevyžaduje sa",
+"law": "§ 74 ods. 01 písm. b) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyName/cbc-Name/"
+},
+"BT-46": {
+"n": "Identifikátor kupujúceho",
+"d": "Identifikátor daného kupujúceho.",
+"u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor kupujúceho, ktorý priradil predávajúci.",
+"r": "nevyžaduje sa",
+"x": "\"SES - tento bod hovorí o oboch stranách obchodného vzťahu ... \"\"identifikačné údaje osoby ,ktorá dodáva plnenie (ďalejlen„dodávateľ“)\"\"\nuvedené ako nepovinný údaj, v prípade, že dodávateľ disponuje špecifickým identifikátorom, v tom prípade je to súčasť identifikačných údajov a je v poriadku že to tam bude implementované\"",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyIdentification/cbc-ID/"
+},
+"BT-46-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor kupujúceho.",
+"u": "Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyIdentification/cbc-ID/schemeID/"
+},
+"BT-47": {
+"n": "Identifikátor zákonnej registrácie kupujúceho",
+"d": "Identifikátor vydaný oficiálnym registračným subjektom, ktorý identifikuje kupujúceho ako právnickú alebo fyzickú osobu.",
+"u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. identifikátor, ktorý sa používa výhradne v príslušnom právnom prostredí.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa, ak bolo IČO subjektu pridelené\nNejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať.\nPodľa OZ § 3a sa uvádza, že na obchodných dokumentoch sa uvádza IČO, len ak bolo pridelené.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/"
+},
+"BT-47-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor zákonnej registrácie kupujúceho.",
+"u": "Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa, ak bolo IČO subjektu pridelené",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyLegalEntity/cbc-CompanyID/schemeID/"
+},
+"BT-48": {
+"n": "Identifikátor kupujúceho na účely DPH",
+"d": "Identifikátor kupujúceho na účely DPH (známy aj ako daňové identifikačné číslo kupujúceho pre DPH).\nIdentifikačné číslo pre daň, pod ktorým mu bol dodaný tovar alebo pod ktorým mu bola dodaná služba.",
+"u": "Daňové identifikačné číslo na účely DPH s predponou vyjadrujúcou kód krajiny podľa EN ISO 3166-1 „Kódy pre názvy krajín a ich častí“.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa, ak bolo IČ DPH subjektu pridelené",
+"law": "§ 74 ods. 01 písm. b) ... 3.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PartyTaxScheme/cbc-CompanyID/"
+},
+"BT-49": {
+"n": "Elektronická adresa kupujúceho",
+"d": "Identifikuje elektronickú adresu kupujúceho, na ktorú sa doručuje faktúra.",
+"u": "Identifikátor schémy sa musí vybrať zo zoznamu, ktorý je vedený v rámci nástroja Spájame Európu.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cbc-EndpointID/"
+},
+"BT-49-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre elektronickú adresu kupujúceho.",
+"u": "Identifikátor schémy sa musí vybrať zo zoznamu, ktorý je vedený v rámci nástroja Spájame Európu.",
+"r": "vyžaduje sa",
+"x": "Čiselník kódov uvádza pre Slovenskú republiku kod \"0245\" = DIČ",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cbc-EndpointID/schemeID/"
+},
+"BG-8": {
+"n": "POŠTOVÁ ADRESA KUPUJÚCEHO",
+"d": "Skupina obchodných termínov poskytujúcich informácie o poštovej adrese kupujúceho.",
+"u": "Treba vyplniť dostatočné prvky adresy na splnenie zákonných požiadaviek.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/"
+},
+"BT-50": {
+"n": "Adresa kupujúceho riadok 1",
+"d": "Hlavný riadok adresy v adrese.\nAdresa jeho sídla, miesta podnikania, prevádzkarne, bydliska alebo adresa miesta, kde sa obvykle zdržiava.",
+"u": "Obvykle názov ulice a číslo alebo poštová priehradka.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. b)\nOrganizačná zložka je pobočkou zahraničnej spoločnosti na Slovensku. Napriek tomu, že údaje (BT) o adrese majú v EN norme kardinalitu 0..1, zákon o DPH vyžaduje ich uvedenie na faktúre",
+"law": "§ 74 ods. 01 písm. b) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cbc-StreetName/"
+},
+"BT-51": {
+"n": "Adresa kupujúceho riadok 2",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cbc-AdditionalStreetName/"
+},
+"BT-163": {
+"n": "Adresa kupujúceho riadok 3",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cac-AddressLine/cbc-Line/"
+},
+"BT-52": {
+"n": "Mesto kupujúceho",
+"d": "Všeobecne používaný názov mesta alebo obce, kde sa nachádza adresa kupujúceho. Adresa jeho sídla, miesta podnikania, prevádzkarne, bydliska alebo adresa miesta, kde sa obvykle zdržiava.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. b)\nNapriek tomu, že údaje (BT) o adrese majú v EN norme kardinalitu 0..1, zákon o DPH vyžaduje ich uvedenie na faktúre",
+"law": "§ 74 ods. 01 písm. b) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cbc-CityName/"
+},
+"BT-53": {
+"n": "PSČ kupujúceho",
+"d": "Identifikátor adresovateľnej skupiny nemovitostí podľa príslušnej poštovej služby. Adresa jeho sídla, miesta podnikania, prevádzkarne, bydliska alebo adresa miesta, kde sa obvykle zdržiava.",
+"u": "Napríklad PSČ.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. b)\nNapriek tomu, že údaje (BT) o adrese majú v EN norme kardinalitu 0..1, zákon o DPH vyžaduje ich uvedenie na faktúre",
+"law": "§ 74 ods. 01 písm. b) ... 4.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cbc-PostalZone/"
+},
+"BT-54": {
+"n": "Nižší správny celok krajiny kupujúceho",
+"d": "Nižší správny celok krajiny.",
+"u": "Napríklad kraj, okres, štát, provincia atď.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cbc-CountrySubentity/"
+},
+"BT-55": {
+"n": "Kód krajiny kupujúceho",
+"d": "Kód, ktorý identifikuje krajinu.",
+"u": "Zoznamy platných krajín sú registrované v agentúre pre správu kódov EN ISO 3166-1 „Kódy pre názvy krajín a ich častí“.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"law": "§ 74 ods. 01 písm. b) ... 4",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cac-Country/"
+},
+"BG-9": {
+"n": "KONTAKTNÉ ÚDAJE KUPUJÚCEHO",
+"d": "Skupina obchodných termínov poskytujúcich kontaktné informácie týkajúce sa kupujúceho.",
+"u": "Kontaktné údaje môže kupujúci uviesť pri zadávaní objednávky, alebo ako kmeňové údaje vymieňané pred objednávkou. Kontaktné údaje by sa nemali využívať na účely interného smerovania prijatej faktúry zo strany príjemcu; na tento účel by sa mal použiť referenčný identifikátor kupujúceho.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-PostalAddress/cac-Country/"
+},
+"BT-56": {
+"n": "Kontaktné miesto kupujúceho",
+"d": "Kontaktné miesto právnickej alebo fyzickej osoby.",
+"u": "Napríklad meno osoby, identifikácia kontaktu, oddelenia alebo kancelárie.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-Contact/cbc-Name/"
+},
+"BT-57": {
+"n": "Kontaktné telefónne číslo kupujúceho",
+"d": "Telefónne číslo kontaktného miesta.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-Contact/cbc-Telephone/"
+},
+"BT-58": {
+"n": "Kontaktná e-mailová adresa kupujúceho",
+"d": "E-mailová adresa kontaktného miesta.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AccountingCustomerParty/cac-Party/cac-Contact/cbc-ElectronicMail/"
+},
+"BG-10": {
+"n": "PRÍJEMCA PLATBY",
+"d": "Skupina obchodných termínov, ktoré poskytujú informácie o príjemcovi platby, t.j. o role, ktorá prijíma platbu.",
+"u": "Rolu príjemcu platby môže plniť iná strana než predávajúci, napr. poskytovateľ faktoringovej služby.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PayeeParty/"
+},
+"BT-59": {
+"n": "Meno/názov príjemcu platby",
+"d": "Meno/názov príjemcu platby.",
+"u": "Použije sa, ak je príjemca platby odlišný od predávajúceho. Meno/názov príjemcu platby sa však môže zhodovať s menom/názvom predávajúceho.",
+"r": "vyžaduje sa",
+"x": "nie je povinná náležitosť podľa ZoDPH ani Obch.Z",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PayeeParty/cac-PartyName/cbc-Name/"
+},
+"BT-60": {
+"n": "Identifikátor príjemcu platby",
+"d": "Identifikátor daného príjemcu platby.",
+"u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor príjemcu platby, ktorý priradil kupujúci alebo predávajúci.\nAk sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PayeeParty/cac-PartyIdentification/cbc-ID/"
+},
+"BT-61": {
+"n": "Identifikátor zákonnej registrácie príjemcu platby",
+"d": "Identifikátor vydaný oficiálnym registračným subjektom, ktorý identifikuje príjemcu platby ako právnickú alebo fyzickú osobu.",
+"u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. identifikátor,\nktorý sa používa výhradne v príslušnom právnom prostredí.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PayeeParty/cac-PartyLegalEntity/cbc-CompanyID/"
+},
+"BT-61-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor zákonnej registrácie príjemcu platby.",
+"u": "Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PayeeParty/cac-PartyLegalEntity/cbc-CompanyID/schemeID/"
+},
+"BG-11": {
+"n": "DAŇOVÝ ZÁSTUPCA PREDÁVAJÚCEHO",
+"d": "Skupina obchodných termínov poskytujúcich informácie o daňovom zástupcovi predávajúceho.",
+"r": "nevyžaduje sa",
+"x": "daný údaj nie je povinne uvádzaný na každej faktúre. Údaj sa vyžaduje iba v prípade, ak je zahraničná osoba zastupovaná daňovým zástupcom.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/"
+},
+"BT-62": {
+"n": "Meno/názov daňového zástupcu predávajúceho",
+"d": "Celé meno/názov daňového zástupcu predávajúceho.\nMeno a priezvisko alebo názov daňového zástupcu podľa § 69a alebo § 69aa, ak zahraničná osoba je zastúpená daňovým zástupcom podľa § 69a alebo § 69aa.",
+"r": "vyžaduje sa",
+"law": "§ 74 ods. 01 písm. o) ... 1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PartyName/cbc-Name/"
+},
+"BT-63": {
+"n": "Identifikátor daňového zástupcu predávajúceho\nna účely DPH",
+"d": "Identifikátor daňového zástupcu predávajúcehona účely DPH.\nJeho osobitné identifkačné číslo pre DPH.",
+"u": "Daňové identifikačné číslo na účely DPH s predponou vyjadrujúcou kód krajiny podľa EN ISO 3166-1 „Kódy pre názvy krajín a ich častí“.",
+"r": "vyžaduje sa",
+"law": "§ 74 ods. 01 písm. o) ... 3.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PartyTaxScheme/cbc-CompanyID/"
+},
+"BG-12": {
+"n": "POŠTOVÁ ADRESA DAŇOVÉHO ZÁSTUPCU PREDÁVAJÚCEHO",
+"d": "Skupina obchodných termínov poskytujúcich informácie o poštovej adrese daňového zástupcu.\nAdresa jeho sídla alebo bydliska",
+"u": "Meno/poštová adresa daňového zástupcu predávajúceho sa na faktúre uvádza, ak má predávajúci daňového zástupcu, ktorý je povinný odviesť splatnú DPH. Treba vyplniť dostatočné prvky adresy na splnenie zákonných požiadaviek.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PartyTaxScheme/cbc-CompanyID/"
+},
+"BT-64": {
+"n": "Adresa daňového zástupcu riadok 1",
+"d": "Hlavný riadok adresy v adrese.\nAdresa jeho sídla alebo bydliska.",
+"u": "Obvykle názov ulice a číslo alebo poštová priehradka.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa iba v prípade, ak sa transakcie zúčastňuje daňový zástupca.",
+"law": "§ 74 ods. 01 písm. o) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cbc-StreetName/"
+},
+"BT-65": {
+"n": "Adresa daňového zástupcu riadok 2",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cbc-AdditionalStreetName/"
+},
+"BT-164": {
+"n": "Adresa daňového zástupcu riadok 3",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cac-AddressLine/cbc-Line/"
+},
+"BT-66": {
+"n": "Mesto daňového zástupcu",
+"d": "Všeobecne používaný názov mesta alebo obce, kde sa nachádza adresa daňového zástupcu. Adresa jeho sídla alebo bydliska.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa iba v prípade, ak sa transakcie zúčastňuje daňový zástupca.",
+"law": "§ 74 ods. 01 písm. o) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cbc-CityName/"
+},
+"BT-67": {
+"n": "PSČ daňového zástupcu",
+"d": "Identifikátor adresovateľnej skupiny nemovitostí podľa príslušnej poštovej služby. Adresa jeho sídla alebo bydliska.",
+"u": "Napríklad PSČ.",
+"r": "podmienene vyžadované",
+"x": "vyžaduje sa iba v prípade, ak sa transakcie zúčastňuje daňový zástupca.",
+"law": "§ 74 ods. 01 písm. o) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cbc-PostalZone/"
+},
+"BT-68": {
+"n": "Nižší správny celok krajiny daňového zástupcu",
+"d": "Nižší správny celok krajiny.",
+"u": "Napríklad kraj, okres, štát, provincia atď.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cbc-CountrySubentity/"
+},
+"BT-69": {
+"n": "Kód krajiny daňového zástupcu",
+"d": "Kód, ktorý identifikuje krajinu.",
+"u": "Ide o krajinu, v ktorej je splatná DPH. Zoznamy platných krajín sú registrované v agentúre pre správu kódov EN ISO 3166-1 „Kódy pre názvy krajín a ich častí“.",
+"r": "vyžaduje sa",
+"law": "§ 74 ods. 01 písm. o)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PostalAddress/cac-Country/cbc-IdentificationCode/"
+},
+"BG-13": {
+"n": "DODACIE ÚDAJE",
+"d": "Skupina obchodných termínov poskytujúcich informácie o tom, kam a kedy sú fakturované tovary a služby dodávané.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/"
+},
+"BT-70": {
+"n": "Názov subjektu určenia dodávky",
+"d": "Názov subjektu, ktorému sa dodáva tovar a služby",
+"u": "Použije sa, ak je subjekt určenia dodávky odlišný od kupujúceho.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryParty/cac-PartyName/cbc-Name/"
+},
+"BT-71": {
+"n": "Identifikátor miesta určenia dodávky\nIdentifikátor schémy",
+"d": "Identifikátor miesta, na ktoré sa dodáva tovar a služby.\nIdentifikátor schémy identifikácie pre identifikátor miesta určenia dodávky.",
+"u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor, ktorý priradil kupujúci alebo predávajúci.\n Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cbc-ID/"
+},
+"BT-71-1": {
+"n": "Identifikátor miesta určenia dodávky\nIdentifikátor schémy",
+"d": "Identifikátor miesta, na ktoré sa dodáva tovar a služby.\nIdentifikátor schémy identifikácie pre identifikátor miesta určenia dodávky.",
+"u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor, ktorý priradil kupujúci alebo predávajúci.\n Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cbc-ID/schemeID/"
+},
+"BT-72": {
+"n": "Skutočný dátum dodávky",
+"d": "Dátum, kedy bola dodávka tovaru alebo služieb vykonaná alebo dokončená.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-Delivery/cbc-ActualDeliveryDate/"
+},
+"BG-14": {
+"n": "FAKTURAČNÉ OBDOBIE",
+"d": "Skupina obchodných termínov poskytujúcich informácie o fakturačnom období.",
+"u": "Používa sa na označenie začiatku a konca obdobia, na ktoré sa vzťahuje faktúra. Označuje sa tiež ako obdobie dodania.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoicePeriod/"
+},
+"BT-73": {
+"n": "Počiatočný dátum fakturačného obdobia",
+"d": "Dátum, kedy začína fakturačné obdobie.",
+"u": "Počiatočný dátum dodávky tovaru alebo služieb.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoicePeriod/cbc-StartDate/"
+},
+"BT-74": {
+"n": "Konečný dátum fakturačného obdobia",
+"d": "Dátum, kedy končí fakturačné obdobie.",
+"u": "Dátum, kedy bola dodávka tovaru alebo služieb\ndokončená.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoicePeriod/cbc-EndDate/"
+},
+"BG-15": {
+"n": "DODACIA ADRESA",
+"d": "Skupina obchodných termínov poskytujúcich informácie o adrese, na ktorú sú alebo boli fakturované tovary a služby dodávané.",
+"u": "V prípade vyzdvihnutia v sklade je dodacou adresou adresa miesta vyzdvihnutia. Treba vyplniť dostatočné prvky adresy na splnenie zákonných požiadaviek.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/"
+},
+"BT-75": {
+"n": "Dodacia adresa riadok 1",
+"d": "Hlavný riadok adresy v adrese.",
+"u": "Obvykle názov ulice a číslo.",
+"r": "nevyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cbc-StreetName/"
+},
+"BT-76": {
+"n": "Dodacia adresa riadok 2",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cbc-AdditionalStreetName/"
+},
+"BT-165": {
+"n": "Dodacia adresa riadok 3",
+"d": "Dodatočný riadok adresy v adrese, ktorý možno použiť na uvedenie ďalších podrobností doplňujúcich hlavný riadok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cac-AddressLine/cbc-Line/"
+},
+"BT-77": {
+"n": "Mesto určenia dodávky",
+"d": "Všeobecne používaný názov mesta alebo obce, kde sa nachádza dodacia adresa.",
+"r": "nevyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cbc-CityName/"
+},
+"BT-78": {
+"n": "PSČ miesta určenia dodávky",
+"d": "Identifikátor adresovateľnej skupiny nemovitostí podľa príslušnej poštovej služby.",
+"u": "Napríklad PSČ.",
+"r": "nevyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cbc-PostalZone/"
+},
+"BT-79": {
+"n": "Nižší správny celok krajiny určenia dodávky",
+"d": "Nižší správny celok krajiny.",
+"u": "Napríklad kraj, okres, štát, provincia atď.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cbc-CountrySubentity/"
+},
+"BT-80": {
+"n": "Kód krajiny určenia dodávky",
+"d": "Kód, ktorý identifikuje krajinu.",
+"u": "Zoznamy platných krajín sú registrované v agentúre pre správu kódov EN ISO 3166-1\n„Kódy pre názvy krajín a ich častí“.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou. \nnie je povinná náležitosť podľa ZoDPH ani Obch.Z",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cac-Address/cac-Country/"
+},
+"BG-16": {
+"n": "POKYNY PRE PLATBU",
+"d": "Skupina obchodných termínov poskytujúcich informácie o platbe.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/"
+},
+"BT-81": {
+"n": "Kód typu spôsobu platby",
+"d": "Spôsob, ktorým má byť alebo bola vykonaná platba, vyjadrený kódom.",
+"u": "Použijú sa položky z číselníka UNTDID 4461[6]. Treba rozlišovať medzi platbami SEPA a inými než SEPA a medzi platbami bezhotovostným prevodom, inkasom, platobnou kartou a inými nástrojmi.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-PaymentMeans/cbc-PaymentMeansCode/"
+},
+"BT-82": {
+"n": "Text spôsobu platby",
+"d": "Spôsob, ktorým má byť alebo bola vykonaná platba, vyjadrený textom.",
+"u": "Napríklad v hotovosti, bezhotovostným prevodom, inkasom, kreditnou kartou atď.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cbc-PaymentMeansCode/name/"
+},
+"BT-83": {
+"n": "Informácie o platbe",
+"d": "Textová hodnota používaná na stanovenie väzby medzi platbou a faktúrou, vydáva predávajúci.",
+"u": "Používa sa pre kritické údaje veriteľa na účely zosúhlasenia. Tento informačný prvok pomáha predávajúcemu priradiť prichádzajúcu platbu príslušnému platobnému procesu. Pri špecifikovaní textovej hodnoty, ktorou je obvykle číslo uhrádzanej faktúry, ale prípadne aj iný referenčný údaj predávajúceho, by mal kupujúci tento referenčný údaj uviesť vo svojom platobnom príkaze pri vykonávaní platby. V rámci platobnej transakcie sa tento referenčný údaj odovzdáva späť predávajúcemu ako informácie o platbe.\nNa automatické spracovanie cezhraničných SEPA platieb by v tomto poli mali byť použité len znaky latinky, s maximálnym počtom 140 znakov. Podrobnosti k povoleným znakom, pozri referenčný oddiel 1.4 pokynov na vykonávanie SEPA prevodov a SEPA inkasa [13] a [14]. V rámci hraníc štátov môžu pre SEPA platby platiť iné pravidlá.\nAk je informácia pre platbu štruktúrovaná podľa normy ISO 11649:2009 [16] pre štruktúrovanú referenciu príjemcu, bude v správach o SEPA platbách mapovaná do poľa Štruktúrovaná referencia príjemcu pre informáciu k platbe (Structured Remittance Information Creditor Reference).\nAk je informácia pre platbu štruktúrovaná podľa normy EACT pre automatické zosúhlasenie [17], bude v správach o SEPA platbách mapovaná do poľa Neštruktúrovaná informácia k platbe (Unstructured Remittance Information).\nAk má byť informácia pre platbu v správach o SEPA platbách mapovaná do poľa Identifikácia End To End (Identification End To End) alebo do poľa Štruktúrovaná referencia príjemcu pre informáciu k platbe (Structured Remittance Information Creditor Reference), potom okrem obmedzenia na súbor znakov latinky nesmie obsah začínať alebo končiť „/“ a nesmie obsahovať „//“. Pozri odkaz [15].",
+"r": "nevyžaduje sa",
+"x": "Formát: pre variabilný symbol (max 10 číslic)\nnejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-PaymentMeans/cbc-PaymentID/"
+},
+"BG-17": {
+"n": "BEZHOTOVOSTNÝ PREVOD",
+"d": "Skupina obchodných termínov špecifikujúcich platby bezhotovostným prevodom.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-PayeeFinancialAccount/"
+},
+"BT-84": {
+"n": "Identifikátor platobného účtu",
+"d": "Jedinečný identifikátor finančného platobného účtu u poskytovateľa platobných služieb, v prospech ktorého má byť vykonaná platba.",
+"u": "Napríklad IBAN (v prípade SEPA platby) alebo národné číslo účtu.",
+"r": "vyžaduje sa",
+"x": "Číslo účtu dodávateľa je POVINNÉ",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-PaymentMeans/cac-PayeeFinancialAccount/cbc-ID/"
+},
+"BT-85": {
+"n": "Názov platobného účtu",
+"d": "Názov platobného účtu u poskytovateľa platobných služieb, v prospech ktorého má byť vykonaná platba.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-PayeeFinancialAccount/cbc-Name/"
+},
+"BT-86": {
+"n": "Identifikátor poskytovateľa platobných služieb",
+"d": "Identifikátor poskytovateľa platobných služieb, u ktorého sa nachádza platobný účet.",
+"u": "Napríklad BIC alebo národný clearingový kód, podľa potreby. Nie je potrebné používať žiadnu schému identifikácie.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-PayeeFinancialAccount/cac-FinancialInstitutionBranch/cbc-ID/"
+},
+"BG-18": {
+"n": "INFORMÁCIE O PLATOBNEJ KARTE",
+"d": "Skupina obchodných termínov poskytujúcich informácie o karte použitej na platbu súčasne s vystavením faktúry.",
+"u": "Používa sa len v prípade, že sa kupujúci rozhodol platiť platobnou kartou, napríklad kreditnou alebo debetnou.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-CardAccount/"
+},
+"BT-87": {
+"n": "Číslo primárneho účtu platobnej karty",
+"d": "Číslo primárneho účtu platobnej karty (Primary Account Number (PAN)) použitej na platbu.",
+"u": "V súlade s normami v oblasti zabezpečenia kartových platieb by faktúra nemala nikdy obsahovať úplné číslo primárneho účtu platobnej karty. K dnešnému dňu Rada pre bezpečnostné normy PCI definovala, že maximálny počet uvádzaných číslic predstavuje prvých 6 číslic a posledné 4 číslice.",
+"r": "vyžaduje sa",
+"x": "nie je povinná náležitosť podľa ZoDPH ani Obch.Z",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-PaymentMeans/cac-CardAccount/cbc-PrimaryAccountNumberID/"
+},
+"BT-88": {
+"n": "Meno držiteľa platobnej karty",
+"d": "Meno držiteľa platobnej karty.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-CardAccount/cbc-HolderName/"
+},
+"BG-19": {
+"n": "INKASO",
+"d": "Skupina obchodných termínov špecifikujúcich platby inkasom.",
+"u": "Túto skupinu možno používať na to, aby sa vo faktúre vopred uviedlo, že platba bude vykonaná SEPA alebo iným inkasom iniciovaným zo strany predávajúceho v súlade s pravidlami stanovenými schémou SEPA alebo inou inkasnou schémou.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-PaymentMandate/"
+},
+"BT-89": {
+"n": "Identifikátor referencie k mandátu",
+"d": "Jedinečný identifikátor, ktorý priraďuje príjemcu platby pre referenciu k inkasnému mandátu.",
+"u": "Používa sa na predbežné informovanie kupujúceho o SEPA inkase.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-PaymentMandate/cbc-ID/"
+},
+"BT-90": {
+"n": "Bankou priradený identifikátor príjemcu",
+"d": "Jedinečný referenčný identifikátor banky pre príjemcu platby alebo predávajúceho, ktorý priraďuje banka príjemcu platby alebo predávajúceho.",
+"u": "Používa sa na predbežné informovanie kupujúceho o SEPA inkase.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PayeeParty/cac-PartyIdentification/cbc-ID/"
+},
+"BT-91": {
+"n": "Identifikátor účtu platcu",
+"d": "Účet, ktorý má byť zaťažený inkasom.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-PaymentMeans/cac-PaymentMandate/cac-PayerFinancialAccount/cbc-ID/"
+},
+"BG-20": {
+"n": "ZRÁŽKY NA ÚROVNI DOKLADU",
+"d": "Skupina obchodných termínov poskytujúcich informácie o zrážkach uplatnených na faktúru ako celok.",
+"u": "V tejto skupine je možné špecifikovať aj odpočty, napríklad daň vyberanú zrážkou.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AllowanceCharge/"
+},
+"BT-92": {
+"n": "Suma zrážky na úrovni dokladu",
+"d": "Suma zrážky bez DPH.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AllowanceCharge/cbc-Amount/"
+},
+"BT-93": {
+"n": "Základ zrážky na úrovni dokladu",
+"d": "Základná suma, ktorá môže byť v spojení s percentom zrážky na úrovni dokladu použitá na výpočet výšky zrážky na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-BaseAmount/"
+},
+"BT-94": {
+"n": "Percento zrážky na úrovni dokladu",
+"d": "Percento, ktoré môže byť v spojení so základom zrážky na úrovni dokladu použité na výpočet výšky zrážky na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-MultiplierFactorNumeric/"
+},
+"BT-95": {
+"n": "Kód kategórie DPH pre zrážku na úrovni dokladu",
+"d": "Kódom vyjadrená identifikácia kategórie DPH, ktorá platí pre zrážku na úrovni dokladu.",
+"u": "Používajú sa tieto položky UNTDID 5305 [6] (ďalšie vysvetlenie v zátvorkách): - Základná sadzba (podlieha DPH štandardným spôsobom), - Tovar s nulovou sadzbou (podlieha DPH v nulovej sadzbe), - Oslobodené od dane (DPH/IGIC/IPSI), - Prenesenie daňovej povinnosti (platia pravidlá pre prenesenie daňovej povinnosti DPH/IGIC/IPSI), - Oslobodené od DPH pre dodávku tovaru v rámci Spoločenstva (DPH/IGIC/IPSI sa podľa pravidiel pre dodávky tovaru v rámci Spoločenstva nevyberá), Vývoz oslobodený od dane (DPH/IGIC/IPSI sa nevyberá, ide o vývoz mimo EÚ), - Služby mimo pôsobnosti dane (predaj nepodlieha DPH/IGIC/IPSI), Všeobecná nepriama daň Kanárskych ostrovov (podlieha dani IGIC), - Podlieha IPSI (daň v Ceute/Melille)",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AllowanceCharge/cac-TaxCategory/cbc-ID/"
+},
+"BT-96": {
+"n": "Sadzba DPH pre zrážku na úrovni dokladu",
+"d": "Sadzba DPH vyjadrená ako percento, ktorá platí pre zrážku na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cac-TaxCategory/cbc-Percent/"
+},
+"BT-97": {
+"n": "Dôvod zrážky na úrovni dokladu",
+"d": "Dôvod zrážky na úrovni dokladu vyjadrený ako text.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-AllowanceChargeReason/"
+},
+"BT-98": {
+"n": "Kód dôvodu zrážky na úrovni dokladu",
+"d": "Dôvod zrážky na úrovni dokladu vyjadrený ako kód.",
+"u": "Použite položky z číselníka UNTDID 5189 [6]. Kód dôvodu zrážky na úrovni dokladu a dôvod zrážky na úrovni dokladu musí uvádzať rovnaký dôvod zrážky.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-AllowanceChargeReasonCode/"
+},
+"BG-21": {
+"n": "PRIRÁŽKY NA ÚROVNI DOKLADU",
+"d": "Skupina obchodných termínov poskytujúcich informácie o prirážkach a daniach iných než DPH uplatnených na faktúru ako celok.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AllowanceCharge/cbc-Amount/"
+},
+"BT-99": {
+"n": "Suma prirážky na úrovni dokladu",
+"d": "Suma prirážky bez DPH.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AllowanceCharge/cbc-Amount/"
+},
+"BT-100": {
+"n": "Základ prirážky na úrovni dokladu",
+"d": "Základná suma, ktorá môže byť v spojení s percentom prirážky na úrovni dokladu použitá na výpočet výšky prirážky na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-BaseAmount/"
+},
+"BT-101": {
+"n": "Percento prirážky na úrovni dokladu",
+"d": "Percento, ktoré môže byť v spojení so základom prirážky na úrovni dokladu použité na výpočet výšky prirážky na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-MultiplierFactorNumeric/"
+},
+"BT-102": {
+"n": "Kód kategórie DPH pre prirážku na úrovni dokladu",
+"d": "Kódom vyjadrená identifikácia kategórie DPH, ktorá platí pre prirážku na úrovni dokladu.",
+"u": "Používajú sa tieto položky UNTDID 5305 [6] (ďalšie vysvetlenie v zátvorkách):\n- Základná sadzba (podlieha DPH štandardným spôsobom)\n- Tovar s nulovou sadzbou (podlieha DPH v nulovej sadzbe)\n- Oslobodené od dane (DPH/IGIC/IPSI)\n- Prenesenie daňovej povinnosti (platia pravidlá\npre prenesenie daňovej povinnosti DPH/IGIC/IPSI)\n- Oslobodené od DPH pre dodávku tovaru v rámci Spoločenstva (DPH/IGIC/IPSI sa podľa pravidiel\npre dodávky tovaru v rámci Spoločenstva nevyberá)\nVývoz oslobodený od dane (DPH/IGIC/IPSI sa\nnevyberá, ide o vývoz mimo EÚ)\n- Služby mimo pôsobnosti dane (predaj nepodlieha DPH/IGIC/IPSI)\nVšeobecná nepriama daň Kanárskych ostrovov (podlieha dani IGIC)\n- Podlieha IPSI (daň v Ceute/Melille)",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AllowanceCharge/cac-TaxCategory/cbc-ID/"
+},
+"BT-103": {
+"n": "Sadzba DPH pre prirážku na úrovni dokladu",
+"d": "Sadzba DPH vyjadrená ako percento,\nktorá platí pre prirážku na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cac-TaxCategory/cbc-Percent/"
+},
+"BT-104": {
+"n": "Dôvod prirážky na úrovni dokladu",
+"d": "Dôvod prirážky na úrovni dokladu vyjadrený ako text.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-AllowanceChargeReason/"
+},
+"BT-105": {
+"n": "Kód dôvodu prirážky na úrovni dokladu",
+"d": "Dôvod prirážky na úrovni dokladu vyjadrený ako kód.",
+"u": "Použite položky z číselníka UNTDID 7161 [6]. Kód dôvodu prirážky na úrovni dokladu a dôvod prirážky na úrovni dokladu musí uvádzať rovnaký dôvod prirážky.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AllowanceCharge/cbc-AllowanceChargeReasonCode/"
+},
+"BG-22": {
+"n": "CELKOVÉ SÚČTY ZA DOKLAD",
+"d": "Skupina obchodných termínov uvádzajúcich celkové peňažné sumy za celú faktúru.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/"
+},
+"BT-106": {
+"n": "Súčet čistých súm riadkov faktúry",
+"d": "Súčet všetkých čistých súm riadkov faktúry.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-LineExtensionAmount/"
+},
+"BT-107": {
+"n": "Súčet zrážok na úrovni dokladu",
+"d": "Súčet všetkých zrážok na úrovni dokladu vo faktúre.",
+"u": "Zrážky na úrovni riadkov sú zahrnuté v čistých sumách riadkov faktúry, ktoré sú sčítané v Súčte čistých súm riadkov faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-AllowanceTotalAmount/"
+},
+"BT-108": {
+"n": "Súčet prirážok na úrovni dokladu",
+"d": "Súčet všetkých prirážok na úrovni dokladu vo faktúre.",
+"u": "Prirážky na úrovni riadkov sú zahrnuté v čistých sumách riadkov faktúry, ktoré sú sčítané v Súčte čistých súm riadkov faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-ChargeTotalAmount/"
+},
+"BT-109": {
+"n": "Celková suma faktúry bez DPH",
+"d": "Celková suma za faktúru bez DPH.",
+"u": "Celková suma faktúry bez DPH je Súčet čistých súm riadkov faktúry mínus Súčet všetkých zrážok na úrovni dokladu plus Súčet všetkých prirážok na úrovni dokladu.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-TaxExclusiveAmount/"
+},
+"BT-110": {
+"n": "Celková suma DPH za faktúru",
+"d": "Celková suma DPH za celú faktúru.\nVýška dane spolu v eurách, ktorá sa má zaplatiť, okrem výšky dane uplatnenej podľa osobitnej úpravy v § 66.",
+"u": "Celková suma DPH za faktúru je Súčtom všetkých súm dane za jednotlivé kategórie DPH.",
+"r": "vyžaduje sa",
+"law": "§ 74 ods. 01 písm. i)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cbc-TaxAmount/"
+},
+"BT-111": {
+"n": "Celková suma DPH za faktúru v účtovnej mene",
+"d": "Celková suma DPH vyjadrená v účtovnej mene prijímanej alebo požadovanej v krajine predávajúceho.",
+"u": "Použije sa v prípade, že sa Kód účtovnej meny DPH (BT-6) líši od Kódu meny faktúry (BT-5) podľa článku 230 Smernice 2006/112/ES o DPH.\nSuma DPH v účtovnej mene sa nepoužíva pri výpočte celkových súm za faktúru.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-TaxTotal/cbc-TaxAmount/"
+},
+"BT-112": {
+"n": "Celková suma faktúry vrátane DPH",
+"d": "Celková suma za faktúru s DPH.",
+"u": "Celková suma faktúry vrátane DPH je celková suma faktúry bez DPH plus celková suma DPH za faktúru.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-TaxInclusiveAmount/"
+},
+"BT-113": {
+"n": "Zaplatená suma",
+"d": "Súčet súm zaplatených ako záloha.",
+"u": "Táto suma sa odčíta od celkovej sumy faktúry vrátane DPH na účely výpočtu splatnej sumy.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-PrepaidAmount/"
+},
+"BT-114": {
+"n": "Suma zaokrúhlenia",
+"d": "Suma pripočítavaná k celkovej sume za faktúru na zaokrúhlenie splatnej sumy.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-PayableRoundingAmount/"
+},
+"BT-115": {
+"n": "Splatná suma na úhradu",
+"d": "Neuhradená suma, ktorá má byť zaplatená.",
+"u": "Táto suma vzniká ako celková suma faktúry vrátane DPH mínus suma zaplatená zálohovo vopred. V prípade plne uhradenej faktúry je táto suma nulová. Suma môže byť záporná; v takom prípade dlhuje predávajúci túto sumu kupujúcemu.",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-LegalMonetaryTotal/cbc-PayableAmount/"
+},
+"BG-23": {
+"n": "ROZDELENIE DPH",
+"d": "Skupina obchodných termínov poskytujúcich informácie o rozdelení DPH podľa rôznych kategórií, sadzieb a dôvodov oslobodenia.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/"
+},
+"BT-116": {
+"n": "Základ dane za kategóriu DPH",
+"d": "Súčet všetkých základov dane, pre ktoré platí konkrétny kód kategórie DPH a sadzba kategórie DPH (ak sa použije sadzba kategórie DPH).\nZáklad dane pre každú sadzbu dane.",
+"u": "Súčet čistej sumy v riadku faktúry mínus zrážky plus prirážky na úrovni dokladu, pre ktoré platí konkrétny kód kategórie DPH a sadzba kategórie DPH (ak sa použije sadzba kategórie DPH).",
+"r": "vyžaduje sa",
+"law": "§ 74 ods. 01 písm. g) ...1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/cbc-TaxableAmount/"
+},
+"BT-117": {
+"n": "Suma dane za kategóriu DPH",
+"d": "Celková suma DPH za kategóriu DPH.",
+"u": "Vypočíta sa vynásobením základu dane za kategóriu DPH sadzbou kategórie DPH pre príslušnú kategóriu DPH.",
+"r": "vyžaduje sa",
+"x": "nebude doplnené do § 74\nbude riešené v podzákonnej norme\nnejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/cbc-TaxAmount/"
+},
+"BT-118": {
+"n": "Kód kategórie DPH",
+"d": "Kódom vyjadrená identifikácia kategórie DPH.",
+"u": "Používajú sa tieto položky UNTDID 5305 [6] (ďalšie vysvetlenie v zátvorkách):\n - Základná sadzba (podlieha DPH štandardným spôsobom)\n - Tovar s nulovou sadzbou (podlieha DPH v nulovej sadzbe)\n - Oslobodené od dane (DPH/IGIC/IPSI)\n - Prenesenie daňovej povinnosti (platia pravidlá pre prenesenie daňovej povinnosti DPH/IGIC/IPSI)\n - Oslobodené od DPH pre dodávku tovaru v rámci Spoločenstva (DPH/IGIC/IPSI sa podľa pravidiel pre dodávky tovaru v rámci Spoločenstva nevyberá)\n - Vývoz oslobodený od dane (DPH/IGIC/IPSI sa nevyberá, ide o vývoz mimo EÚ)\n - Služby mimo pôsobnosti dane (predaj nepodlieha DPH/IGIC/IPSI)\n - Všeobecná nepriama daň Kanárskych ostrovov (podlieha dani IGIC)\n - Podlieha IPSI (daň v Ceute/Melille)",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/cac-TaxCategory/cbc-ID/"
+},
+"BT-119": {
+"n": "Sadzba za príslušnú kategóriu DPH",
+"d": "Sadzba DPH vyjadrená ako percento, ktorá platí pre príslušnú kategóriu DPH. Uplatnená sadzba dane.",
+"u": "Kód kategórie DPH a sadzba kategórie DPH musia byť v súlade.",
+"r": "podmienene vyžadované",
+"x": "§ 74 ods. 1 písm. h)\nlegálny základ je v § 74 ods. 1 písm. h) zákona o DPH: faktúra musí obsahovať uplatnenú sadzbu dane alebo oslobodenie od dane; pri oslobodení od dane sa uvedie odkaz na ustanovenie tohto zákona alebo smernice Rady 2006/112/ES z 28. novembra 2006 o spoločnom systéme dane z pridanej hodnoty v platnom znení alebo slovná informácia „dodanie je oslobodené od dane“. Vychádzajúc z vety pred bodkočiarkou, ide o alternatívne údaje – sadzba dane alebo oslobodenie od dane. Kardinalita by preto mala byť 0..1, lebo zákon ráta aj s dodaniami s oslobodením od dane a vtedy sa sadzba dane neuplatní.\nV EN norme a aj v Peppol je pravidlo BR-48: Each VAT breakdown (BG-23) shall have a VAT category rate (BT-119), except if the Invoice is not subject to VAT. Každé rozdelenie DPH (BG-23) musí mať sadzbu kategórie DPH (BT-119), s výnimkou prípadu, keď faktúra nepodlieha DPH.",
+"law": "§ 74 ods. 01 písm. h) ... 1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/cac-TaxCategory/cbc-Percent/"
+},
+"BT-120": {
+"n": "Text dôvodu oslobodenia od DPH",
+"d": "Textové vyjadrenie dôvodu, prečo je suma oslobodená od DPH, alebo prečo nie je účtovaná žiadna DPH.\nh) ... alebo oslobodenie od dani; pri oslobodení od dane sa vedie odkaz na ustanovenie tohto zákona alebo smernice Rady 2006/112/ES z 28. novembra 2006 o spoločnom systéme DPH v platnom znení alebo slovná informácia \"dodanie je oslobodené od dane\" j) slovnú informáciu \"vyhotovenie faktúry odberateľom\", ak odberateľ, ktorý je príjemcom tovaru alebo služby, vyhotovuje faktúru podľa § 72 ods. 6,\nk) slovnú informáciu \"prenesenie daňovej povinnosti\", ak osobou povinnou platiť daň je príjemca tovaru alebo služby,\nl) údaje o dodanom novom dopravnom prostriedku podľa § 11 ods. 12,\nm) slovnú informáciu \"úprava zdaňovania prirážky - cestovné kancelárie\", ak sa uplatní osobitná úprava podľa § 65,\nn) slovnú informáciu \"úprava zdaňovania prirážky - použitý tovar\", \"úprava zdaňovania prirážky - umelecké diela\" alebo \"úprava zdaňovania prirážky - zberateľské predmety a starožitnosti\", a to v závislosti od tovaru, pri ktorom sa uplatní osobitná úprava podľa § 66,",
+"u": "Čl. 226 body 11 až 15 Smernice 2006/112/ES [2].",
+"r": "podmienene vyžadované",
+"x": "§ 74 ods. 1 písm. h) = text dôvod oslobodenia\nK § 74 ods. 1 písm. k) - povinná náležitosť podľa zákona o DPH a smernice o DPH. Ide o povinný údaj na e-faktúre, ak nastane niektorá zo situácii, pri ktorých sa má uviesť konkrétna slovná informácia na faktúre.",
+"law": "§ 74 ods. 01 písm. h) ... 2, j), k), l), m), n)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/cac-TaxCategory/cbc-TaxExemptionReason/"
+},
+"BT-121": {
+"n": "Kód dôvodu oslobodenia od DPH",
+"d": "Kódom vyjadrený dôvod, prečo je suma oslobodená od DPH.",
+"u": "Číselník vydaný a vedený v rámci nástroja Spájame Európu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxTotal/cac-TaxSubtotal/cac-TaxCategory/cbc-TaxExemptionReasonCode/"
+},
+"BG-24": {
+"n": "DODATOČNÉ PODPORNÉ DOKUMENTY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o dodatočných podporných dokumentoch, ktoré dokladajú nároky uvedené vo faktúre.",
+"u": "Dodatočné podporné dokumenty možno použiť na uvedenie referenčného čísla dokladu, ktoré by mal príjemca poznať, externého dokumentu (referencia formou URL), alebo vloženého dokumentu (napríklad výkazu práce v pdf). Možnosť odkazu na externý dokument bude potrebná napríklad v prípade veľkých príloh a/alebo v prípade, že je potrebné od faktúry oddeliť citlivé informácie, napr. služby viazané na konkrétnu osobu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AdditionalDocumentReference/"
+},
+"BT-122": {
+"n": "Odkaz na podporný dokument",
+"d": "Identifikátor podporného dokumentu.",
+"r": "vyžaduje sa",
+"x": "Kódy pro dodatečné dokumenty: https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL1153/",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AdditionalDocumentReference/cbc-ID/"
+},
+"BT-123": {
+"n": "Popis podporného dokumentu",
+"d": "Popis podporného dokumentu.",
+"u": "Napríklad: výkaz práce, výkaz spotreby atď.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AdditionalDocumentReference/cbc-DocumentDescription/"
+},
+"BT-124": {
+"n": "Umiestnenie externého dokumentu",
+"d": "URL (Uniform Resource Locator) identifikujúci umiestnenie externého dokumentu.",
+"u": "Metóda určenia miesta zdroja vrátane jeho primárneho prístupového mechanizmu, napr. http:// alebo ftp://. Umiestnenie externého dokumentu sa používa v prípade, že kupujúci požaduje dodatočné informácie na zdôvodnenie faktúry. Externé dokumenty nie sú súčasťou faktúry. Prístup k externým dokumentom môže byť spojený s určitými rizikami.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-AdditionalDocumentReference/cac-Attachment/cac-ExternalReference/cbc-URI/"
+},
+"BT-125": {
+"n": "Priložený dokument",
+"d": "Priložený dokument vložený ako binárny objekt alebo zaslaný spolu s faktúrou.",
+"u": "Priložený dokument sa používa v prípade, že bude\ndokumentácia uložená s faktúrou na účely budúcej referencie alebo auditu.\nPovolené typy MIME:\n - application/pdf\n - image/png\n - image/jpeg\n - text/csv\n - application/vnd.openxmlformats- officedocument.spreadsheetml.sheet\n - application/vnd.oasis.opendocument. Spreadsheet",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-AdditionalDocumentReference/cac-Attachment/"
+},
+"BG-25": {
+"n": "RIADOK FAKTÚRY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o jednotlivých riadkoch faktúry.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/"
+},
+"BT-126": {
+"n": "Identifikátor riadku faktúry",
+"d": "Jedinečný identifikátor jednotlivého riadku v rámci faktúry.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-ID/"
+},
+"BT-127": {
+"n": "Poznámka k riadku faktúry",
+"d": "Textová poznámka uvádzajúca neštruktúrované informácie relevantné pre príslušný riadok faktúry.",
+"r": "nevyžaduje sa",
+"x": "nie je povinný",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cbc-Note/"
+},
+"BT-128": {
+"n": "Identifikátor predmetu v riadku faktúry",
+"d": "Identifikátor predmetu, ktorý je základom\nv riadku faktúry, uvádza predávajúci.",
+"u": "Môže ísť o číslo predplatného, telefónne číslo, merač spotreby, atď., podľa potreby.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-DocumentReference/cbc-ID/"
+},
+"BT-128-1": {
+"n": "Identifikátor schémy",
+"d": "Identifikátor schémy identifikácie pre identifikátor predmetu riadku faktúry.",
+"u": "Príjemcovi nemusí byť jasné, aká schéma sa pre\nidentifikátor používa, v tom prípade by sa mal použiť podmienený identifikátor schémy zvolený z položiek číselníka UNTDID 1153 [6].",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-DocumentReference/cbc-ID/schemeID/"
+},
+"BT-129": {
+"n": "Fakturované množstvo",
+"d": "Množstvo položiek (tovaru alebo služieb), ktoré je účtované v riadku faktúry.\nMnožstvo dodaného tovaru alebo rozsah dodanej služby.",
+"r": "vyžaduje sa",
+"x": "SES - množstevný údaj\n§ 74 ods. 1 písm. f)",
+"law": "§ 74 ods. 01 písm. f) ... 1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-InvoicedQuantity/"
+},
+"BT-130": {
+"n": "Kód mernej jednotky fakturovaného množstva",
+"u": "Merná jednotka bude zvolená zo zoznamov v Odporúčaní OSN/ECE č. 20 Kódy merných jednotiek používaných v medzinárodnom obchode (Codes for Units of Measure Used in International Trade) [7] a Odporúčaní OSN/ECE č. 21 Kódy pre cestujúcich, druhy nákladu, baliace a obalové materiály (s doplnkovými kódmi pre názvy balení) (Codes for Passengers, Types of Cargo, Packages and Packaging Materials (with Complementary Codes for Package Names)) [19] s uplatnením metódy popísanej v Odporúčaní OSN/ECE č. 20 Úvode 2.a). Treba upozorniť, že vo väčšine prípadov nemusí kupujúci a predávajúci tieto zoznamy zavádzať do svojho softvéru v plnom rozsahu. Predávajúci musí podporovať len jednotky potrebné pre jeho tovar a služby; kupujúci musí len overovať, že jednotky použité vo faktúre sa rovnajú jednotkám používaným v ostatných dokumentoch (napr. v zmluve, katalógu, objednávke a avíze o odoslaní tovaru).",
+"r": "vyžaduje sa",
+"x": "Podľa § 74 zákona o DPH kód MJ nie je povinnou náležitosťou faktúry a faktúra ho neobsahuje.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-InvoicedQuantity/unitCode/"
+},
+"BT-131": {
+"n": "Čistá suma v riadku faktúry",
+"d": "Celková suma v riadku faktúry.\nZáklad dane pre každú sadzbu dane.",
+"u": "Suma je „čistá“ bez DPH, t.j. vrátane zrážok a prirážok a iných príslušných daní v riadku.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. g) základ dane pre každú sadzbu dane, jednotkovú cenu bez dane a zľavy a rabaty, ak nie sú obsiahnuté v jednotkovej cene,",
+"law": "§ 74 ods. 01 písm. g) ...1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cbc-LineExtensionAmount/"
+},
+"BT-132": {
+"n": "Odkaz na označenie príslušného riadku objednávky",
+"d": "Identifikátor príslušného riadku objednávky, vydané kupujúcim.",
+"u": "Na identifikátor objednávky sa uvádza odkaz na úrovni dokladu.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-OrderLineReference/cbc-LineID/"
+},
+"BT-133": {
+"n": "Riadok faktúry pre referenciu pre zaúčtovanie kupujúcemu",
+"d": "Textová hodnota, ktorá špecifikuje, kam sa príslušné údaje zaúčtujú vo finančnom účtovníctve kupujúceho.",
+"u": "Na vyžiadanie poskytne túto referenciu kupujúci\npredávajúcemu pred vystavením faktúry.",
+"r": "nevyžaduje sa",
+"x": "nie je povinné",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cbc-AccountingCost/"
+},
+"BG-26": {
+"n": "OBDOBIE V RIADKU FAKTÚRY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o období, na ktoré sa vzťahuje riadok faktúry.",
+"u": "Označuje sa tiež ako dodacia lehota v riadku faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-InvoicePeriod/"
+},
+"BT-134": {
+"n": "Počiatočný dátum obdobia v riadku faktúry",
+"d": "Dátum, kedy začína fakturačné obdobie v riadku faktúry.",
+"u": "Dátum je prvý deň obdobia.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-InvoicePeriod/cbc-StartDate/"
+},
+"BT-135": {
+"n": "Konečný dátum obdobia v riadku faktúry",
+"d": "Dátum, kedy končí fakturačné obdobie v riadku faktúry.",
+"u": "Dátum je posledný deň obdobia.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-InvoicePeriod/cbc-EndDate/"
+},
+"BG-27": {
+"n": "ZRÁŽKY V RIADKU FAKTÚRY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o zrážkach uplatnených na jednotlivý riadok faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/"
+},
+"BT-136": {
+"n": "Suma zrážky v riadku faktúry",
+"d": "Suma zrážky bez DPH.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-Amount/"
+},
+"BT-137": {
+"n": "Základ zrážky v riadku faktúry",
+"d": "Základná suma, ktorá môže byť v spojení s percentom zrážky v riadku faktúry použitá na výpočet výšky zrážky v riadku faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-BaseAmount/"
+},
+"BT-138": {
+"n": "Percento zrážky v riadku faktúry",
+"d": "Percento, ktoré môže byť v spojení so základom zrážky v riadku faktúry použité na výpočet výšky zrážky v riadku faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-MultiplierFactorNumeric/"
+},
+"BT-139": {
+"n": "Dôvod zrážky v riadku faktúry",
+"d": "Dôvod zrážky v riadku faktúry vyjadrený ako text.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-AllowanceChargeReason/"
+},
+"BT-140": {
+"n": "Kód dôvodu zrážky v riadku faktúry",
+"d": "Dôvod zrážky v riadku faktúry vyjadrený ako kód.",
+"u": "Použite položky z číselníka UNTDID 5189 [6]. Kód dôvodu zrážky v riadku faktúry a dôvod zrážky v riadku faktúry musí uvádzať rovnaký dôvod zrážky.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-AllowanceChargeReasonCode/"
+},
+"BG-28": {
+"n": "PRIRÁŽKY V RIADKU FAKTÚRY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o prirážkach a daniach iných než DPH uplatnených na jednotlivý riadok faktúry.",
+"u": "Predpokladá sa, že všetky prirážky a dane podliehajú rovnakej sadzbe DPH ako daný riadok faktúry.",
+"r": "nevyžaduje sa",
+"x": "Otázka: \nPri vystavení faktúry, ktorá zahŕňa aj spotrebnú daň alebo daň zo sladených nealko nápojov, hodnota tejto dane je jednou zo zložiek základu dane pre DPH. Má sa hodnota spotrebnej dane/dane SNN uvádzať v poli BG-28? Príp. v akom poli sa bude táto hodnota uvádzať? \nOdpoveď: \nAk sú uplatnené aj ostatné dane, sú zahrnuté do základu dane podľa zákona o DPH. Ak štandard uvádza prirážky k riadku faktúry (skupina BG-28), mali by sa uviesť v príslušných poliach, no na faktúre sa nemusí uvádzať. Z pohľadu uplatnenia zákona o DPH je povinnou náležitosťou faktúry údaj \"základ dane pre každú sadzbu dane\", pričom do základu dane sa zahŕňajú, okrem iného, aj iné dane, clá a poplatky vzťahujúce sa na tovar alebo službu. Podľa fakturačných pravidiel ale nie je povinnosť uvádzať tieto položky, ktoré sú súčasťou základu dane, ako samostatné položky faktúry. Len pre doplnenie uvádzame, že podľa informácie z odboru spotrebných daní platitelia spotrebnej dane zrejme uvádzajú túto daň na faktúre z dôvodu, aby vedeli preukázať, že tovar bol zdanený spotrebnou daňou. Napr. podľa zákona o spotrebnej dani z alkoholických nápojov sa \"za preukázateľne zdanený alkoholický nápoj\" považuje aj alkoholický nápoj v daňovom voľnom obehu, ktorého zdanenie je doložené dokladom potvrdzujúcim jeho nadobudnutie za cenu s daňou a dokladom potvrdzujúcim zaplatenie dane v cene alkoholického nápoja. Ak EN norma obsahuje, resp. upravuje do ktorých polí je potrebné tieto položky smerovať (ak sa na faktúre uvádzajú), tak je potrebné postupovať podľa normy.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/"
+},
+"BT-141": {
+"n": "Suma prirážky v riadku faktúry",
+"d": "Suma prirážky bez DPH.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-Amount/"
+},
+"BT-142": {
+"n": "Základ prirážky v riadku faktúry",
+"d": "Základná suma, ktorá môže byť v spojení s percentom prirážky v riadku faktúry použitá na výpočet výšky prirážky v riadku faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-BaseAmount/"
+},
+"BT-143": {
+"n": "Percento prirážky v riadku faktúry",
+"d": "Percento, ktoré môže byť v spojení so základom prirážky v riadku faktúry použité na výpočet výšky prirážky v riadku faktúry.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-MultiplierFactorNumeric/"
+},
+"BT-144": {
+"n": "Dôvod prirážky v riadku faktúry",
+"d": "Dôvod prirážky v riadku faktúry vyjadrený ako text.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-AllowanceChargeReason/"
+},
+"BT-145": {
+"n": "Kód dôvodu prirážky v riadku faktúry",
+"d": "Dôvod prirážky v riadku faktúry vyjadrený ako kód.",
+"u": "Použite položky z číselníka UNTDID 7161 [6]. Kód dôvodu prirážky v riadku faktúry a dôvod prirážky v riadku faktúry musí uvádzať rovnaký dôvod prirážky.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-AllowanceCharge/cbc-AllowanceChargeReasonCode/"
+},
+"BG-29": {
+"n": "CENOVÉ ÚDAJE",
+"d": "Skupina obchodných termínov poskytujúcich informácie o cene uplatnenej na tovar a služby fakturované v riadku faktúry.",
+"r": "vyžaduje sa",
+"x": "SES - UBL2.1 kardinalita 1..1 - zároveň povinnosť ID 178\n - D16B kardinalita 0..1 - no povinnosť ID178\nID179 je vždy povinna podľa kardinality, preto niesú povinné\nOtázka: \nInformácie o zľave za položke sa uvádzajú v časti BG-29, explicitne však nie je uvedené, kde uvádzať zľavu za doklad (napr. vernostná zľava) - je to časť BG20? \nOdpoveď: \nZákon o DPH explicitne nerieši takéto zľavy na doklad, ako náležitosť fa určuje konkrétne číselné údaje ako napr. základ dane, daň v členení podľa jednotlivých sadzieb dane. Technicky, časť BG-20 pojednáva o zrážkach na úrovni dokladu no zároveň v poli Bt-95 určuje kód kategórie DPH pre zrážku na úrovni dokladu, čo v danom prípade nie je aplikovateľné. Ide o otázku aplikácie EN normy, resp. Peppoll BIS 3 formátu, nie prioritne o biznis oblasť.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Price/"
+},
+"BT-146": {
+"n": "Cena za položku netto",
+"d": "Cena za položku bez DPH po odčítaní zľavy z ceny.\nJednotková cena bez dane.",
+"u": "Cena za položku netto sa musí rovnať cene za položku brutto zníženej o zľavu z ceny za položku.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. g) = cena po zľave (ak je zahrnutá v brutto JC)",
+"law": "§ 74 ods. 01 písm. g) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Price/cbc-PriceAmount/"
+},
+"BT-147": {
+"n": "Zľava z ceny za položku",
+"d": "Celková zľava odčítaná z ceny za položku brutto pre výpočet ceny za položku netto.\nZľavy a rabaty, ak nie sú obsiahnuté v jednotkovej cene.",
+"u": "Použije sa len v prípade, že sa zľava poskytuje na jednu položku a nie je zahrnutá v cene za položku brutto.",
+"r": "nevyžaduje sa",
+"x": "§ 74 ods. 1 písm. g) = zľava z ceny, ak nie je v brutto JC (inak sa nemá uvádzať)",
+"law": "§ 74 ods. 01 písm. g) ... 3.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Price/cac-AllowanceCharge/cbc-Amount/"
+},
+"BT-148": {
+"n": "Cena za položku brutto",
+"d": "Cena za položku bez DPH pred odčítaním zľavy z ceny za položku. Jednotková cena bez dane.",
+"r": "podmienene vyžadované",
+"x": "V prípade \"Ceny za položku brutto\", teda ak nie je vyplnená \"Cena za položku netto\", je povinné vyplnenie položiek \"Cena za položku brutto\" a \"Zľava z ceny za položku\".\nide o jednotkovú cenu položky brutto = JC netto (BT-146) + zľavy a rabaty (BT-147). podľa popisu BT, uvádza sa ak nie je uvedené BT-146 – JC netto. Podľa SK legislatívy (§ 74 ods. 1 písm. g) zákona o DPH) sa na faktúre uvádza základ dane pre každú sadzbu dane, jednotkovú cenu bez dane a zľavy a rabaty, ak nie sú obsiahnuté v jednotkovej cene.",
+"law": "§ 74 ods. 01 písm. g) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Price/cac-AllowanceCharge/cbc-BaseAmount/"
+},
+"BT-149": {
+"n": "Základné množstvo ceny za položku",
+"d": "Počet jednotiek položky, na ktoré sa cena uplatní.",
+"r": "nevyžaduje sa",
+"x": "SES - cenový údaj pre položku (napr. 5€/5ks) uvadza sa v prípade že cenníková cena udáva cenu za viac kusov",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-Price/cbc-BaseQuantity/"
+},
+"BT-150": {
+"n": "Kód mernej jednotky základného množstva ceny za položku",
+"d": "Merná jednotka, ktorá platí pre základné množstvo ceny za položku.",
+"u": "Merná jednotka základného množstva ceny za položku musí byť zhodná s mernou jednotkou Fakturovaného množstva (BT-130).",
+"r": "nevyžaduje sa"
+},
+"BG-30": {
+"n": "ÚDAJE O DPH V RIADKU",
+"d": "Skupina obchodných termínov poskytujúcich informácie o DPH platnej pre tovar a služby fakturované v riadku faktúry.",
+"r": "vyžaduje sa",
+"x": "Otázka: môžu byť na jednej faktúre uvedené položky s rôznymi režimami?\nOdpoveď: \nPodľa názoru FS zákon o DPH a ani smernica o DPH nevylučuje, aby na jednej faktúre vystaviteľ faktúry uviedol aj položky s rôznymi režimami, napríklad dodania tovarov s prenosom daňovej povinnosti na príjemcu plnenia a aj dodania tovarov v bežnom režime, na ktoré uplatní príslušnú sadzbu dane a DPH. Tento postup zákon o DPH nevylučuje, ale pod podmienkou, že z vyhotovenej faktúry bude jednoznačne zrejmé, ku ktorým plneniam (položkám faktúry) sa uplatnil príslušný režim. V súvislosti so zavedením elektronickej faktúry je ale otázne, či EN norma tento postup umožňuje. Ak by uvedené nebolo technicky realizovateľné, tak dané stanovisko už nebudú relevantné. V súvislosti s poslednou otázkou je ale potrebné uviesť, že „prenos daňovej povinnosti“ nie je „oslobodením“, takže platiteľ neuvádza na faktúre informáciu o oslobodení od dane, ale uvádza slovnú informáciu „prenesenie daňovej povinnosti“. Podľa priložených printscreen číselníkov na strane 3. a 4. je zvlášť číselník pre kódy dôvodu oslobodenia, takže predpokladáme, že aj sadzba s kódom „E“ sa uplatní len pre tieto položky uvedené pre pole BT-121.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-ClassifiedTaxCategory/"
+},
+"BT-151": {
+"n": "Kód kategórie DPH fakturovanej položky",
+"d": "Kód kategórie DPH pre fakturovanú položku.",
+"u": "Používajú sa tieto položky UNTDID 5305 [6] (ďalšie vysvetlenie v zátvorkách):\n - Základná sadzba (podlieha DPH štandardným spôsobom)\n - Tovar s nulovou sadzbou (podlieha DPH v nulovej sadzbe)\n - Oslobodené od dane (DPH/IGIC/IPSI)\n - Prenesenie daňovej povinnosti (platia pravidlá pre prenesenie daňovej povinnosti DPH/IGIC/IPSI)\n - Oslobodené od DPH pre dodávku tovaru v rámci Spoločenstva (DPH/IGIC/IPSI sa podľa pravidiel pre dodávky tovaru v rámci Spoločenstva nevyberá)\n - Vývoz oslobodený od dane (DPH/IGIC/IPSI sa nevyberá, ide o vývoz mimo EÚ)\n - Služby mimo pôsobnosti dane (predaj nepodlieha DPH/IGIC/IPSI)\n - Všeobecná nepriama daň Kanárskych ostrovov (podlieha dani IGIC)\n - Podlieha IPSI (daň v Ceute/Melille)",
+"r": "vyžaduje sa",
+"x": "nejde o povinnú náležitosť faktúry v zmysle článku 226 smernice 2006/112/ES a teda ani zákona o DPH a nebude sa do zákona o DPH dopĺňať. Zo smernice aj návrhu zákona o DPH vyplýva, že musí byť v súlade s EN normou.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-ClassifiedTaxCategory/cbc-ID/"
+},
+"BT-152": {
+"n": "Sadzba DPH fakturovanej položky",
+"d": "Sadzba DPH vyjadrená ako percento,\nktorá platí pre fakturovanú položku. Uplatnená sadzba dane",
+"r": "nevyžaduje sa",
+"x": "§ 74 ods. 1 písm. h)",
+"law": "§ 74 ods. 01 písm. h) ... 1.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-ClassifiedTaxCategory/cbc-Percent/"
+},
+"BG-31": {
+"n": "INFORMÁCIE O POLOŽKÁCH",
+"d": "Skupina obchodných termínov poskytujúcich informácie o fakturovanom tovare a službách.",
+"r": "vyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/"
+},
+"BT-153": {
+"n": "Názov položky",
+"d": "Názov pre položku. Druh dodaného tovaru a druh dodanej služby.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. f)",
+"law": "§ 74 ods. 01 písm. f) ... 2.",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cbc-Name/"
+},
+"BT-154": {
+"n": "Popis položky",
+"d": "Popis pre položku.",
+"u": "Popis položky umožňuje popísať položku a jej vlastnosti podrobnejšie než názov položky.",
+"r": "nevyžaduje sa",
+"x": "nie je povinné",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cbc-Description/"
+},
+"BT-155": {
+"n": "Identifikátor položky predávajúceho",
+"d": "Identifikátor, ktorý položke priradí predávajúci.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-SellersItemIdentification/"
+},
+"BT-156": {
+"n": "Identifikátor položky kupujúceho",
+"d": "Identifikátor, ktorý položke priradí kupujúci.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-BuyersItemIdentification/cbc-ID/"
+},
+"BT-157": {
+"n": "Identifikátor štandardu položky",
+"d": "Identifikátor položky odvodený z registrovanej schémy.",
+"u": "Schéma identifikácie musí byť zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-StandardItemIdentification/"
+},
+"BT-158": {
+"n": "Identifikátor klasifikácie položky",
+"d": "Kód pre klasifikáciu položky podľa jej typu a povahy.",
+"u": "Klasifikačné kódy sa používajú na zoskupenie podobných položiek na rôzne účely, napr. verejné obstarávanie (CPV), e-Commerce (UNSPSC) atď.\nSchéma identifikácie musí byť zvolená z položiek\nUNTDID 7143 [6].",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-CommodityClassification/cbc-ItemClassificationCode/"
+},
+"BT-159": {
+"n": "Krajina pôvodu položky",
+"d": "Kód identifikujúci krajinu pôvodu položky.",
+"u": "Zoznamy platných krajín sú registrované v agentúre pre správu kódov EN ISO 3166-1\n„Kódy pre názvy krajín a ich častí“.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-OriginCountry/cbc-IdentificationCode/"
+},
+"BG-32": {
+"n": "ATRIBÚTY POLOŽKY",
+"d": "Skupina obchodných termínov poskytujúcich informácie o vlastnostiach fakturovaného tovaru a služieb.",
+"r": "nevyžaduje sa",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-AdditionalItemProperty/"
+},
+"BT-160": {
+"n": "Názov atribútu položky",
+"d": "Názov atribútu alebo vlastnosti položky.",
+"u": "Napríklad „Farba“.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. l)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-AdditionalItemProperty/cbc-Name/"
+},
+"BT-161": {
+"n": "Hodnota atribútu položky",
+"d": "Hodnota atribútu alebo vlastnosti položky.",
+"u": "Napríklad „Červená“.",
+"r": "vyžaduje sa",
+"x": "§ 74 ods. 1 písm. l)",
+"url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-AdditionalItemProperty/cbc-Value/"
+},
+"BT-157-1": {
+"n": "Identifikátor schémy"
+}
+}

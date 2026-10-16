@@ -1,0 +1,22 @@
+{
+  "label": "CEN 1.3.16 · Peppol BIS 3.0.21",
+  "long": "EN 16931 UBL 1.3.16 (2026-04-10, 979 pravidiel) a Peppol BIS Billing 3.0.21 (May 2026, povinné od 2026-08-17, 166 pravidiel)",
+  "cen": {
+    "version": "1.3.16",
+    "date": "2026-04-10",
+    "asserts": 979
+  },
+  "peppol": {
+    "version": "3.0.21",
+    "release": "May 2026",
+    "asserts": 166,
+    "mandatory": "2026-08-17"
+  },
+  "compiler": "SchXslt 1.10.1 + xslt3 2.7.0 → SEF pre SaxonJS 2.7",
+  "compiled": "2026-10-16",
+  "sk": {
+    "workbook": "v1.12 (2026-10-14)",
+    "pasr": "2026-01-23",
+    "faq": "2026-10-12"
+  }
+}
