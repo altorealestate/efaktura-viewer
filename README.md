@@ -10,6 +10,8 @@ Prehliadač a validátor e-faktúr **Peppol BIS Billing 3.0** (UBL 2.1) so slove
 2. Pretiahnite do okna XML faktúru alebo ju otvorte tlačidlom **Otvoriť XML…**.
 3. Faktúra sa zobrazí ako doklad. Keď kliknete na ľubovoľný údaj, nástroj ukáže, z ktorého elementu XML pochádza
    (kód BT podľa EN 16931, XPath, číslo riadku).
+   Funguje to aj opačne: v záložke **XML** stačí prejsť myšou po kóde. Príslušný údaj sa vo faktúre vyznačí a spojí
+   čiarou s riadkom XML. Zobrazí sa aj karta s názvom poľa, popisom a číselníkom.
 4. V paneli **Nálezy** sú výsledky troch kontrol:
    - oficiálna validácia EN 16931 + Peppol BIS 3.0,
    - slovenské kontroly (Peppol ID 0245:DIČ, IČO, IBAN/BIC, variabilný symbol, DUZP, diakritika…),

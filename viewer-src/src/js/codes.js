@@ -70,6 +70,61 @@ const CODES = {
   }
 };
 
+/* Číselníky Peppol BIS 3.0 (https://docs.peppol.eu/poacc/billing/3.0/codelist/<kľúč>/) a BT, ktoré ich používajú. */
+const CODELISTS = {
+  'UNCL1001-inv': 'Typ faktúry (UNTDID 1001)', 'UNCL1001-cn': 'Typ dobropisu (UNTDID 1001)',
+  ISO4217: 'Kódy mien (ISO 4217)', ISO3166: 'Kódy krajín (ISO 3166-1 alpha-2)',
+  UNCL2005: 'Kód dátumu DPH (UNTDID 2005)', UNCL4461: 'Spôsob platby (UNTDID 4461)',
+  UNCL5305: 'Kategória DPH (UNTDID 5305)', vatex: 'Dôvod oslobodenia od DPH (VATEX)',
+  UNCL5189: 'Dôvod zrážky (UNTDID 5189)', UNCL7161: 'Dôvod prirážky (UNTDID 7161)',
+  UNECERec20: 'Merné jednotky (UN/ECE odporúčanie č. 20 a 21)', UNCL7143: 'Klasifikácia položky (UNTDID 7143)',
+  eas: 'Schéma elektronickej adresy (EAS)', ICD: 'Schéma identifikátora (ISO 6523 ICD)',
+  UNCL1153: 'Schéma identifikátora objektu (UNTDID 1153)', MimeCode: 'Typ MIME prílohy', SEPA: 'Indikátor SEPA'
+};
+const BT_CODELIST = {
+  'BT-5': 'ISO4217', 'BT-6': 'ISO4217', 'BT-8': 'UNCL2005', 'BT-81': 'UNCL4461', 'BT-121': 'vatex',
+  'BT-40': 'ISO3166', 'BT-55': 'ISO3166', 'BT-69': 'ISO3166', 'BT-80': 'ISO3166', 'BT-159': 'ISO3166',
+  'BT-95': 'UNCL5305', 'BT-102': 'UNCL5305', 'BT-118': 'UNCL5305', 'BT-151': 'UNCL5305',
+  'BT-98': 'UNCL5189', 'BT-140': 'UNCL5189', 'BT-105': 'UNCL7161', 'BT-145': 'UNCL7161',
+  'BT-130': 'UNECERec20', 'BT-150': 'UNECERec20', 'BT-158': 'UNCL7143', 'BT-18-1': 'UNCL1153',
+  'BT-34-1': 'eas', 'BT-49-1': 'eas', 'BT-90-1': 'SEPA',
+  'BT-29-1': 'ICD', 'BT-30-1': 'ICD', 'BT-46-1': 'ICD', 'BT-47-1': 'ICD', 'BT-157-1': 'ICD'
+};
+
+/* Agregáty UBL → skupina obchodných termínov (BG) podľa EN 16931; časť závisí od nadradeného elementu. */
+function ublGroup(n) {
+  const P = n.parent ? n.parent.local : '', PP = n.parent && n.parent.parent ? n.parent.parent.local : '';
+  const isLine = x => x === 'InvoiceLine' || x === 'CreditNoteLine';
+  const charge = () => ((n.children.find(c => c.local === 'ChargeIndicator') || {}).text || '').trim() === 'true';
+  switch (n.local) {
+    case 'AccountingSupplierParty': return 'BG-4';
+    case 'AccountingCustomerParty': return 'BG-7';
+    case 'Party': return { AccountingSupplierParty: 'BG-4', AccountingCustomerParty: 'BG-7' }[P] || null;
+    case 'PostalAddress': return { AccountingSupplierParty: 'BG-5', AccountingCustomerParty: 'BG-8', TaxRepresentativeParty: 'BG-12' }[P === 'Party' ? PP : P] || null;
+    case 'Contact': return { AccountingSupplierParty: 'BG-6', AccountingCustomerParty: 'BG-9' }[PP] || null;
+    case 'PayeeParty': return 'BG-10';
+    case 'TaxRepresentativeParty': return 'BG-11';
+    case 'Delivery': return 'BG-13';
+    case 'Address': return P === 'DeliveryLocation' ? 'BG-15' : null;
+    case 'InvoicePeriod': return isLine(P) ? 'BG-26' : 'BG-14';
+    case 'PaymentMeans': return 'BG-16';
+    case 'PayeeFinancialAccount': return 'BG-17';
+    case 'CardAccount': return 'BG-18';
+    case 'PaymentMandate': return 'BG-19';
+    case 'AllowanceCharge': return !n.parent || !n.parent.parent ? (charge() ? 'BG-21' : 'BG-20') : isLine(P) ? (charge() ? 'BG-28' : 'BG-27') : null;
+    case 'LegalMonetaryTotal': return 'BG-22';
+    case 'TaxSubtotal': return 'BG-23';
+    case 'AdditionalDocumentReference': return 'BG-24';
+    case 'InvoiceLine': case 'CreditNoteLine': return 'BG-25';
+    case 'Price': return 'BG-29';
+    case 'ClassifiedTaxCategory': return 'BG-30';
+    case 'Item': return 'BG-31';
+    case 'AdditionalItemProperty': return 'BG-32';
+    case 'BillingReference': return 'BG-3';
+    default: return null;
+  }
+}
+
 /* Kód banky v slovenskom IBAN (pozície 5–8) → BIC. Orientačný zoznam podľa číselníka NBS. */
 const SK_BANKS = {
   '0200': ['SUBASKBX', 'Všeobecná úverová banka'],

@@ -58,5 +58,18 @@ const U = (() => {
 
   function vatLabel(cat) { return CODES.vat[cat] || ''; }
 
-  return { esc, fmtDate, fmtNum, fmtAmount, fmtQty, fmtPct, fmtSize, plural, countryName, codeLabel, vatLabel, isNum };
+  /** Číselník Peppol pre pole: { name, url } alebo null. */
+  function codeList(f, isCN) {
+    let k = f.bt === 'BT-3' ? (isCN ? 'UNCL1001-cn' : 'UNCL1001-inv') : BT_CODELIST[f.bt];
+    if (f.bt === 'BT-125' && f.attr === 'mimeCode') k = 'MimeCode';
+    return k ? { name: CODELISTS[k], url: 'https://docs.peppol.eu/poacc/billing/3.0/codelist/' + k + '/' } : null;
+  }
+
+  /** „RIADOK FAKTÚRY“ → „Riadok faktúry“ (názvy skupín BG sú vo workbooku FS SR veľkými písmenami). */
+  function sentence(s) {
+    const t = String(s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    return (t.charAt(0).toUpperCase() + t.slice(1)).replace(/\bdph\b/g, 'DPH');
+  }
+
+  return { esc, fmtDate, fmtNum, fmtAmount, fmtQty, fmtPct, fmtSize, plural, countryName, codeLabel, vatLabel, isNum, codeList, sentence };
 })();

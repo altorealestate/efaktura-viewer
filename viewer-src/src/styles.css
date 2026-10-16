@@ -239,6 +239,9 @@ body.xml-wrap .lc { white-space: pre-wrap; word-break: break-all; }
 .x-comment, .x-pi, .x-doctype { color: var(--muted); font-style: italic; }
 .x-trunc { color: var(--muted); font-style: italic; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 3px; padding: 0 5px; margin-left: 4px; }
 .xml [data-n] { cursor: pointer; }
+.xl.hov-r { background: color-mix(in srgb, var(--accent-weak) 55%, transparent); }
+.xl.hov { background: var(--accent-weak); box-shadow: inset 3px 0 0 var(--accent); }
+.xl.hov .ln, .xl.hov-r .ln { color: var(--accent); opacity: 1; }
 .xml .hl-n.x-name, .xml .hl-n.x-text, .xml .hl-n.x-av { background: var(--x-hl); border-radius: 2px; }
 
 /* ---------- mapovanie ---------- */
@@ -313,7 +316,8 @@ pre.lic { white-space: pre-wrap; font: 11px/1.4 var(--mono); background: var(--s
 .notes p { margin: 2px 0; white-space: pre-wrap; }
 .att ul { margin: 0; padding-left: 18px; }
 .att li { word-break: break-all; }
-table.lines { width: 100%; border-collapse: collapse; margin: 18px 0 8px; }
+.lines-wrap { overflow-x: auto; margin: 18px 0 8px; }
+table.lines { width: 100%; border-collapse: collapse; }
 table.lines th {
   text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--paper-muted);
   border-bottom: 1.5px solid var(--paper-text); padding: 6px 6px; font-weight: 650;
@@ -359,6 +363,8 @@ table.totals tr.grand th, table.totals tr.grand td { border-top: 2px solid var(-
 .f.missing.s-warning { color: #995800; border-color: #eec27a; background: #fff8ea; }
 .f.missing.s-info { color: #2a64b8; border-color: #a9c4ee; background: #f2f7fe; }
 .f.fixed { background: #e6f5ea; }
+.f.hov { background: #d4e2fb; box-shadow: 0 0 0 2px #1f5fd6; }
+.f.hov-g { background: #e6eefc; }
 sup.bt { display: none; white-space: nowrap; font: 600 9px/1 var(--mono); color: #1f5fd6; background: #e6eefc; border-radius: 3px; padding: 1px 3px; margin-left: 2px; vertical-align: super; font-style: normal; }
 body.show-bt sup.bt { display: inline; }
 
@@ -371,6 +377,28 @@ body.show-bt sup.bt { display: inline; }
 .tip .muted { color: #9aa4b5; }
 .tip-f { margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255, 255, 255, .15); }
 .tip-f.s-fatal, .tip-f.s-error { color: #ffb3ad; } .tip-f.s-warning { color: #ffd38a; } .tip-f.s-info { color: #b6d2ff; }
+.tip.card { padding: 10px 13px 9px; }
+.hc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.hc-badge { font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 9px; background: #2a3550; color: #c9d6f2; }
+.hc-badge.ok { background: #1f6b3b; color: #d9f7e3; }
+.hc-badge.off { background: #3a3f4b; color: #c3c8d2; }
+.hc-bt { font: 700 11px var(--mono); color: #b9d0ff; }
+.hc-top .hc-bt:last-child { margin-left: auto; }
+.hc-title { font-size: 13.5px; font-weight: 650; color: #fff; line-height: 1.3; }
+.hc-val, .hc-sub { margin-top: 3px; word-break: break-word; }
+.hc-val .k, .hc-sub .k { color: #9aa4b5; font: 11px var(--mono); margin-right: 2px; }
+.hc-val b, .hc-sub b { font-weight: 600; color: #fff; }
+.hc-desc { margin-top: 5px; color: #c5ccd8; }
+.hc-list { margin-top: 5px; color: #9fd0ff; }
+.hc-el { margin-top: 6px; color: #9aa4b5; font-size: 11.5px; }
+.hc-more, .hc-hint { margin-top: 5px; color: #8790a0; font-size: 11px; }
+
+/* spojnica XML ↔ vizuál */
+.links { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 55; overflow: visible; }
+.lk-halo { fill: none; stroke: rgba(255, 255, 255, .8); stroke-width: 5; stroke-linecap: round; }
+.lk-line { fill: none; stroke: #1f5fd6; stroke-width: 1.8; stroke-linecap: round; }
+.lk-dot { fill: #1f5fd6; stroke: #fff; stroke-width: 1.5; }
+.lk-box { fill: rgba(31, 95, 214, .06); stroke: #1f5fd6; stroke-width: 1.5; stroke-dasharray: 5 3; }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #121826; color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; z-index: 70; }
 
 /* užší panel s faktúrou */
@@ -397,10 +425,11 @@ body.show-bt sup.bt { display: inline; }
 @media print {
   @page { margin: 12mm; }
   html, body { height: auto; overflow: visible; background: #fff; display: block; }
-  header.top, .files, .right, .gutter, .left-bar, .empty, .tip, .toast, .drop-overlay { display: none !important; }
+  header.top, .files, .right, .gutter, .left-bar, .empty, .tip, .toast, .drop-overlay, .links { display: none !important; }
   .layout { display: block; }
   .left { width: auto; overflow: visible; }
   .paper { box-shadow: none; margin: 0; max-width: none; padding: 0; border-radius: 0; }
+  .lines-wrap { overflow: visible; }
   .f { background: none !important; box-shadow: none !important; text-decoration: none !important; }
   .f.missing, .kv.only-missing { display: none; }
   sup.bt { display: none !important; }

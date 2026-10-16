@@ -249,6 +249,9 @@ body.xml-wrap .lc { white-space: pre-wrap; word-break: break-all; }
 .x-comment, .x-pi, .x-doctype { color: var(--muted); font-style: italic; }
 .x-trunc { color: var(--muted); font-style: italic; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 3px; padding: 0 5px; margin-left: 4px; }
 .xml [data-n] { cursor: pointer; }
+.xl.hov-r { background: color-mix(in srgb, var(--accent-weak) 55%, transparent); }
+.xl.hov { background: var(--accent-weak); box-shadow: inset 3px 0 0 var(--accent); }
+.xl.hov .ln, .xl.hov-r .ln { color: var(--accent); opacity: 1; }
 .xml .hl-n.x-name, .xml .hl-n.x-text, .xml .hl-n.x-av { background: var(--x-hl); border-radius: 2px; }
 
 /* ---------- mapovanie ---------- */
@@ -323,7 +326,8 @@ pre.lic { white-space: pre-wrap; font: 11px/1.4 var(--mono); background: var(--s
 .notes p { margin: 2px 0; white-space: pre-wrap; }
 .att ul { margin: 0; padding-left: 18px; }
 .att li { word-break: break-all; }
-table.lines { width: 100%; border-collapse: collapse; margin: 18px 0 8px; }
+.lines-wrap { overflow-x: auto; margin: 18px 0 8px; }
+table.lines { width: 100%; border-collapse: collapse; }
 table.lines th {
   text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--paper-muted);
   border-bottom: 1.5px solid var(--paper-text); padding: 6px 6px; font-weight: 650;
@@ -369,6 +373,8 @@ table.totals tr.grand th, table.totals tr.grand td { border-top: 2px solid var(-
 .f.missing.s-warning { color: #995800; border-color: #eec27a; background: #fff8ea; }
 .f.missing.s-info { color: #2a64b8; border-color: #a9c4ee; background: #f2f7fe; }
 .f.fixed { background: #e6f5ea; }
+.f.hov { background: #d4e2fb; box-shadow: 0 0 0 2px #1f5fd6; }
+.f.hov-g { background: #e6eefc; }
 sup.bt { display: none; white-space: nowrap; font: 600 9px/1 var(--mono); color: #1f5fd6; background: #e6eefc; border-radius: 3px; padding: 1px 3px; margin-left: 2px; vertical-align: super; font-style: normal; }
 body.show-bt sup.bt { display: inline; }
 
@@ -381,6 +387,28 @@ body.show-bt sup.bt { display: inline; }
 .tip .muted { color: #9aa4b5; }
 .tip-f { margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(255, 255, 255, .15); }
 .tip-f.s-fatal, .tip-f.s-error { color: #ffb3ad; } .tip-f.s-warning { color: #ffd38a; } .tip-f.s-info { color: #b6d2ff; }
+.tip.card { padding: 10px 13px 9px; }
+.hc-top { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.hc-badge { font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: 9px; background: #2a3550; color: #c9d6f2; }
+.hc-badge.ok { background: #1f6b3b; color: #d9f7e3; }
+.hc-badge.off { background: #3a3f4b; color: #c3c8d2; }
+.hc-bt { font: 700 11px var(--mono); color: #b9d0ff; }
+.hc-top .hc-bt:last-child { margin-left: auto; }
+.hc-title { font-size: 13.5px; font-weight: 650; color: #fff; line-height: 1.3; }
+.hc-val, .hc-sub { margin-top: 3px; word-break: break-word; }
+.hc-val .k, .hc-sub .k { color: #9aa4b5; font: 11px var(--mono); margin-right: 2px; }
+.hc-val b, .hc-sub b { font-weight: 600; color: #fff; }
+.hc-desc { margin-top: 5px; color: #c5ccd8; }
+.hc-list { margin-top: 5px; color: #9fd0ff; }
+.hc-el { margin-top: 6px; color: #9aa4b5; font-size: 11.5px; }
+.hc-more, .hc-hint { margin-top: 5px; color: #8790a0; font-size: 11px; }
+
+/* spojnica XML ↔ vizuál */
+.links { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 55; overflow: visible; }
+.lk-halo { fill: none; stroke: rgba(255, 255, 255, .8); stroke-width: 5; stroke-linecap: round; }
+.lk-line { fill: none; stroke: #1f5fd6; stroke-width: 1.8; stroke-linecap: round; }
+.lk-dot { fill: #1f5fd6; stroke: #fff; stroke-width: 1.5; }
+.lk-box { fill: rgba(31, 95, 214, .06); stroke: #1f5fd6; stroke-width: 1.5; stroke-dasharray: 5 3; }
 .toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: #121826; color: #fff; padding: 7px 14px; border-radius: 8px; font-size: 13px; z-index: 70; }
 
 /* užší panel s faktúrou */
@@ -407,10 +435,11 @@ body.show-bt sup.bt { display: inline; }
 @media print {
   @page { margin: 12mm; }
   html, body { height: auto; overflow: visible; background: #fff; display: block; }
-  header.top, .files, .right, .gutter, .left-bar, .empty, .tip, .toast, .drop-overlay { display: none !important; }
+  header.top, .files, .right, .gutter, .left-bar, .empty, .tip, .toast, .drop-overlay, .links { display: none !important; }
   .layout { display: block; }
   .left { width: auto; overflow: visible; }
   .paper { box-shadow: none; margin: 0; max-width: none; padding: 0; border-radius: 0; }
+  .lines-wrap { overflow: visible; }
   .f { background: none !important; box-shadow: none !important; text-decoration: none !important; }
   .f.missing, .kv.only-missing { display: none; }
   sup.bt { display: none !important; }
@@ -461,7 +490,7 @@ body.show-bt sup.bt { display: inline; }
   </section>
 
   <section id="left" class="left">
-    <div class="left-bar"><span id="doc-name"></span><span class="hint">Kliknite na údaj → zobrazí sa jeho zdroj v XML · podržte myš pre BT a XPath</span></div>
+    <div class="left-bar"><span id="doc-name"></span><span class="hint">Kliknite na údaj → zobrazí sa jeho zdroj v XML · v záložke XML stačí prejsť myšou po kóde</span></div>
     <div id="paper"></div>
   </section>
   <div id="gutter" class="gutter" title="Ťahaním zmeníte šírku panelov"></div>
@@ -497,6 +526,7 @@ body.show-bt sup.bt { display: inline; }
       <div class="pane-body about">
         <h3>Čo nástroj robí</h3>
         <p>Zobrazí e-faktúru (UBL 2.1, Peppol BIS Billing 3.0) ako čitateľný doklad a pri každom údaji ukáže, z ktorého elementu XML pochádza – kód obchodného termínu (BT) podľa EN 16931, XPath a číslo riadku. Súčasne doklad overí oficiálnymi validačnými pravidlami a doplnkovými slovenskými kontrolami.</p>
+        <p>Prepojenie funguje oboma smermi: kliknutím na údaj vo faktúre sa zobrazí jeho zdroj v XML a v záložke <b>XML</b> stačí prejsť myšou po kóde – príslušný údaj sa vo faktúre vyznačí, spojí čiarou s riadkom XML a zobrazí sa karta s názvom poľa, popisom a číselníkom. Pri agregátoch (napr. <code>cac:InvoiceLine</code>) sa vyznačí celá skupina údajov.</p>
         <h3>Validácia</h3>
         <ul>
           <li><b>EN 16931 (CEN)</b> a <b>Peppol BIS Billing 3.0</b> – oficiálne Schematron pravidlá (<span id="about-rules"></span>), rovnaké, aké používajú prístupové body Peppol. Ak doklad nevyhovuje týmto pravidlám, sieť Peppol ho odmietne.</li>
@@ -593,6 +623,7 @@ body.show-bt sup.bt { display: inline; }
   </section>
 </main>
 <div class="drop-overlay"><div>Pustite XML súbory sem</div></div>
+<svg id="links" class="links" aria-hidden="true"></svg>
 <div id="tip" class="tip" hidden></div>
 <div id="toast" class="toast" hidden></div>
 
@@ -2015,6 +2046,61 @@ const CODES = {
   }
 };
 
+/* Číselníky Peppol BIS 3.0 (https://docs.peppol.eu/poacc/billing/3.0/codelist/<kľúč>/) a BT, ktoré ich používajú. */
+const CODELISTS = {
+  'UNCL1001-inv': 'Typ faktúry (UNTDID 1001)', 'UNCL1001-cn': 'Typ dobropisu (UNTDID 1001)',
+  ISO4217: 'Kódy mien (ISO 4217)', ISO3166: 'Kódy krajín (ISO 3166-1 alpha-2)',
+  UNCL2005: 'Kód dátumu DPH (UNTDID 2005)', UNCL4461: 'Spôsob platby (UNTDID 4461)',
+  UNCL5305: 'Kategória DPH (UNTDID 5305)', vatex: 'Dôvod oslobodenia od DPH (VATEX)',
+  UNCL5189: 'Dôvod zrážky (UNTDID 5189)', UNCL7161: 'Dôvod prirážky (UNTDID 7161)',
+  UNECERec20: 'Merné jednotky (UN/ECE odporúčanie č. 20 a 21)', UNCL7143: 'Klasifikácia položky (UNTDID 7143)',
+  eas: 'Schéma elektronickej adresy (EAS)', ICD: 'Schéma identifikátora (ISO 6523 ICD)',
+  UNCL1153: 'Schéma identifikátora objektu (UNTDID 1153)', MimeCode: 'Typ MIME prílohy', SEPA: 'Indikátor SEPA'
+};
+const BT_CODELIST = {
+  'BT-5': 'ISO4217', 'BT-6': 'ISO4217', 'BT-8': 'UNCL2005', 'BT-81': 'UNCL4461', 'BT-121': 'vatex',
+  'BT-40': 'ISO3166', 'BT-55': 'ISO3166', 'BT-69': 'ISO3166', 'BT-80': 'ISO3166', 'BT-159': 'ISO3166',
+  'BT-95': 'UNCL5305', 'BT-102': 'UNCL5305', 'BT-118': 'UNCL5305', 'BT-151': 'UNCL5305',
+  'BT-98': 'UNCL5189', 'BT-140': 'UNCL5189', 'BT-105': 'UNCL7161', 'BT-145': 'UNCL7161',
+  'BT-130': 'UNECERec20', 'BT-150': 'UNECERec20', 'BT-158': 'UNCL7143', 'BT-18-1': 'UNCL1153',
+  'BT-34-1': 'eas', 'BT-49-1': 'eas', 'BT-90-1': 'SEPA',
+  'BT-29-1': 'ICD', 'BT-30-1': 'ICD', 'BT-46-1': 'ICD', 'BT-47-1': 'ICD', 'BT-157-1': 'ICD'
+};
+
+/* Agregáty UBL → skupina obchodných termínov (BG) podľa EN 16931; časť závisí od nadradeného elementu. */
+function ublGroup(n) {
+  const P = n.parent ? n.parent.local : '', PP = n.parent && n.parent.parent ? n.parent.parent.local : '';
+  const isLine = x => x === 'InvoiceLine' || x === 'CreditNoteLine';
+  const charge = () => ((n.children.find(c => c.local === 'ChargeIndicator') || {}).text || '').trim() === 'true';
+  switch (n.local) {
+    case 'AccountingSupplierParty': return 'BG-4';
+    case 'AccountingCustomerParty': return 'BG-7';
+    case 'Party': return { AccountingSupplierParty: 'BG-4', AccountingCustomerParty: 'BG-7' }[P] || null;
+    case 'PostalAddress': return { AccountingSupplierParty: 'BG-5', AccountingCustomerParty: 'BG-8', TaxRepresentativeParty: 'BG-12' }[P === 'Party' ? PP : P] || null;
+    case 'Contact': return { AccountingSupplierParty: 'BG-6', AccountingCustomerParty: 'BG-9' }[PP] || null;
+    case 'PayeeParty': return 'BG-10';
+    case 'TaxRepresentativeParty': return 'BG-11';
+    case 'Delivery': return 'BG-13';
+    case 'Address': return P === 'DeliveryLocation' ? 'BG-15' : null;
+    case 'InvoicePeriod': return isLine(P) ? 'BG-26' : 'BG-14';
+    case 'PaymentMeans': return 'BG-16';
+    case 'PayeeFinancialAccount': return 'BG-17';
+    case 'CardAccount': return 'BG-18';
+    case 'PaymentMandate': return 'BG-19';
+    case 'AllowanceCharge': return !n.parent || !n.parent.parent ? (charge() ? 'BG-21' : 'BG-20') : isLine(P) ? (charge() ? 'BG-28' : 'BG-27') : null;
+    case 'LegalMonetaryTotal': return 'BG-22';
+    case 'TaxSubtotal': return 'BG-23';
+    case 'AdditionalDocumentReference': return 'BG-24';
+    case 'InvoiceLine': case 'CreditNoteLine': return 'BG-25';
+    case 'Price': return 'BG-29';
+    case 'ClassifiedTaxCategory': return 'BG-30';
+    case 'Item': return 'BG-31';
+    case 'AdditionalItemProperty': return 'BG-32';
+    case 'BillingReference': return 'BG-3';
+    default: return null;
+  }
+}
+
 /* Kód banky v slovenskom IBAN (pozície 5–8) → BIC. Orientačný zoznam podľa číselníka NBS. */
 const SK_BANKS = {
   '0200': ['SUBASKBX', 'Všeobecná úverová banka'],
@@ -2161,7 +2247,20 @@ const U = (() => {
 
   function vatLabel(cat) { return CODES.vat[cat] || ''; }
 
-  return { esc, fmtDate, fmtNum, fmtAmount, fmtQty, fmtPct, fmtSize, plural, countryName, codeLabel, vatLabel, isNum };
+  /** Číselník Peppol pre pole: { name, url } alebo null. */
+  function codeList(f, isCN) {
+    let k = f.bt === 'BT-3' ? (isCN ? 'UNCL1001-cn' : 'UNCL1001-inv') : BT_CODELIST[f.bt];
+    if (f.bt === 'BT-125' && f.attr === 'mimeCode') k = 'MimeCode';
+    return k ? { name: CODELISTS[k], url: 'https://docs.peppol.eu/poacc/billing/3.0/codelist/' + k + '/' } : null;
+  }
+
+  /** „RIADOK FAKTÚRY“ → „Riadok faktúry“ (názvy skupín BG sú vo workbooku FS SR veľkými písmenami). */
+  function sentence(s) {
+    const t = String(s || '').replace(/\s+/g, ' ').trim().toLowerCase();
+    return (t.charAt(0).toUpperCase() + t.slice(1)).replace(/\bdph\b/g, 'DPH');
+  }
+
+  return { esc, fmtDate, fmtNum, fmtAmount, fmtQty, fmtPct, fmtSize, plural, countryName, codeLabel, vatLabel, isNum, codeList, sentence };
 })();
 
 'use strict';
@@ -3565,10 +3664,10 @@ const View = (() => {
         <td class="num strong">${fv(L.net, { empty: true })}</td>
       </tr>`;
     }).join('');
-    return `<table class="lines">
+    return `<div class="lines-wrap"><table class="lines">
       <thead><tr><th>#</th><th>Položka</th><th class="num">Množstvo</th><th>MJ</th><th class="num">Cena/MJ bez DPH</th><th class="num">DPH</th><th class="num">Spolu bez DPH</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="7" class="muted">Faktúra neobsahuje žiadne riadky.</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
   }
 
   function docAcHtml(D) {
@@ -3687,12 +3786,12 @@ const View = (() => {
     const lines = [];
     let cur = '', no = 1;
     const flush = () => { lines.push(`<div class="xl" data-l="${no}"><span class="ln">${no}</span><span class="lc">${cur || ' '}</span></div>`); cur = ''; };
-    const emit = (text, cls, nid) => {
+    const emit = (text, cls, nid, attr) => {
       const parts = text.split('\n');
       for (let i = 0; i < parts.length; i++) {
         if (i > 0) { flush(); no++; }
         const p = parts[i].replace(/\r$/, '');
-        if (p) cur += cls || nid >= 0 ? `<span${cls ? ` class="${cls}"` : ''}${nid >= 0 ? ` data-n="${nid}"` : ''}>${esc(p)}</span>` : esc(p);
+        if (p) cur += cls || nid >= 0 ? `<span${cls ? ` class="${cls}"` : ''}${nid >= 0 ? ` data-n="${nid}"` : ''}${attr ? ` data-a="${esc(attr)}"` : ''}>${esc(p)}</span>` : esc(p);
       }
     };
     for (const tk of P.tokens) {
@@ -3702,13 +3801,99 @@ const View = (() => {
         cur += `<span class="x-text" data-n="${tk.nid}">${esc(s.slice(0, 100).replace(/\s+/g, ' '))}</span><span class="x-trunc" data-n="${tk.nid}">… skrytých ${esc(U.fmtNum(s.length))} znakov${nl ? ' / ' + nl + ' riadkov' : ''}</span>`;
         if (nl) { flush(); no += nl; }
       } else if (tk.t === 'open' || tk.t === 'empty' || tk.t === 'close') {
-        for (const [txt, cls] of tagSegments(s)) emit(txt, cls, tk.nid);
+        // názov atribútu, „=“ a hodnota nesú data-a, aby sa dal rozlíšiť napr. @unitCode od samotného elementu
+        let attr = null;
+        for (const [txt, cls] of tagSegments(s)) {
+          if (cls === 'x-an') attr = /^xmlns(:|$)/.test(txt) ? null : txt.replace(/^[^:]*:/, '');
+          else if (cls !== 'x-av' && txt !== '=') attr = null;
+          emit(txt, cls, tk.nid, attr);
+          if (cls === 'x-av') attr = null;
+        }
       } else {
         emit(s, tk.t === 'text' ? 'x-text' : 'x-' + tk.t, tk.nid);
       }
     }
     flush();
     return lines.join('');
+  }
+
+  /* ---------- karta pri prechode myšou (XML ↔ vizuál) ---------- */
+  function plainValue(f) {
+    if (f.missing) return '';
+    const v = dispVal(f) || '';
+    switch (f.fmt) {
+      case 'date': return U.fmtDate(v);
+      case 'amount': return U.fmtAmount(v, f.cur);
+      case 'qty': return U.fmtQty(v);
+      case 'pct': return U.fmtPct(v);
+      case 'country': { const n = U.countryName(v); return n !== v ? `${n} (${v})` : v; }
+      case 'code': { const l = f.list ? U.codeLabel(f.list, v) : ''; return l ? `${l} (${v})` : v; }
+      case 'bin': return `obsah base64 – ${U.fmtSize(SK.attachmentInfo(f.raw).size)}`;
+      default: return v.length > 140 ? v.slice(0, 140) + '…' : v;
+    }
+  }
+
+  function shortDesc(key) {
+    const I = (window.SK_BT || {})[key];
+    if (!I || !I.d) return '';
+    const t = I.d.split('\n')[0].trim();
+    return t.length > 220 ? t.slice(0, 217).replace(/\s+\S*$/, '') + '…' : t;
+  }
+
+  function cardFindings(list) {
+    const uniq = [...new Set(list)].sort((a, b) => SEV_RANK[a.flag] - SEV_RANK[b.flag]);
+    return uniq.slice(0, 2).map(fd => `<div class="tip-f s-${fd.flag}">${esc(fd.text)}</div>`).join('') +
+      (uniq.length > 2 ? `<div class="hc-more">+ ďalšie nálezy: ${uniq.length - 2}</div>` : '');
+  }
+
+  const linesTxt = n => (n.endLine > n.line ? `riadky ${n.line}–${n.endLine}` : `riadok ${n.line}`);
+
+  /**
+   * H: { mode: 'xml'|'paper', kind: 'field'|'group'|'none', node, attr, fields, shown (Set id), group, findings }
+   */
+  function hoverCard(doc, H) {
+    const D = doc.model;
+    const f0 = H.fields[0];
+    if (H.mode === 'paper') {
+      return `<div class="hc-top"><span class="hc-bt">${esc(f0.bt === 'TECH' ? 'technický' : f0.bt)}</span><span class="hc-badge${f0.missing ? ' off' : ''}">${f0.missing ? 'v XML chýba' : 'XML · riadok ' + f0.line}</span></div>
+        <div class="hc-title">${esc(f0.label)}</div>
+        <div class="hc-el"><code>${esc(f0.xpath)}</code></div>
+        ${cardFindings(f0.findings)}`;
+    }
+    const n = H.node;
+    const shownN = H.fields.filter(f => H.shown.has(f.id)).length;
+    const badge = shownN ? '<span class="hc-badge ok">Zobrazené v náhľade</span>' : '<span class="hc-badge off">Nie je vo vizuáli</span>';
+    const el = `<div class="hc-el"><code>${esc(n.name)}${H.attr ? ' @' + esc(H.attr) : ''}</code> · ${H.kind === 'group' || H.kind === 'none' ? linesTxt(n) : 'riadok ' + (H.attr ? (H.fields[0].line || n.line) : n.line)}</div>`;
+    const hint = D && H.kind !== 'none' ? '<div class="hc-hint">Kliknutím zobrazíte detail</div>' : '';
+    if (H.kind === 'field') {
+      const subs = H.fields.slice(1, 4).map(s => `<div class="hc-sub"><span class="k">${esc(s.attr ? '@' + s.attr : (s.bt === 'TECH' ? '' : s.bt))}</span> ${esc(s.label)}: <b>${esc(plainValue(s))}</b></div>`).join('');
+      const cl = H.fields.map(f => U.codeList(f, D.isCN)).find(Boolean);
+      const desc = f0.bt === 'TECH' ? 'Technický údaj – vo vizuáli faktúry sa nezobrazuje.' : shortDesc(f0.bt);
+      return `<div class="hc-top">${badge}<span class="hc-bt">${esc(f0.bt === 'TECH' ? 'technický' : f0.bt)}</span></div>
+        <div class="hc-title">${esc(f0.label)}</div>
+        <div class="hc-val"><span class="k">Hodnota</span> <b>${esc(plainValue(f0))}</b></div>${subs}
+        ${desc ? `<div class="hc-desc">${esc(desc)}</div>` : ''}
+        ${cl ? `<div class="hc-list">Číselník: ${esc(cl.name)}</div>` : ''}
+        ${el}${cardFindings(H.findings)}${hint}`;
+    }
+    if (H.kind === 'group') {
+      const g = H.group && (window.SK_BT || {})[H.group];
+      return `<div class="hc-top">${badge}<span class="hc-bt">${esc(H.group || 'skupina')}</span></div>
+        <div class="hc-title">${esc(g ? U.sentence(g.n) : n.name)}</div>
+        ${g ? `<div class="hc-desc">${esc(shortDesc(H.group))}</div>` : ''}
+        <div class="hc-val">${H.fields.length} ${U.plural(H.fields.length, 'údaj', 'údaje', 'údajov')} · ${shownN} vo vizuáli</div>
+        ${el}${cardFindings(H.findings)}${hint}`;
+    }
+    const txt = (n.text || '').trim();
+    const why = !D ? 'Vizualizácia nie je k dispozícii.'
+      : n === doc.parsed.root ? 'Koreňový element dokumentu.'
+      : n.children.length ? 'Agregát bez údajov zobrazených vo vizuáli.'
+      : 'Element nemá priradený obchodný termín (BT) Peppol BIS 3.0 – vo vizuáli sa nezobrazuje.';
+    return `<div class="hc-top">${badge}</div>
+      <div class="hc-title">${esc(n.name)}</div>
+      ${txt && !n.children.length ? `<div class="hc-val"><span class="k">Hodnota</span> <b>${esc(txt.length > 140 ? txt.slice(0, 140) + '…' : txt)}</b></div>` : ''}
+      <div class="hc-desc">${esc(why)}</div>
+      ${el}${cardFindings(H.findings)}`;
   }
 
   /* ---------- nálezy ---------- */
@@ -3797,18 +3982,20 @@ const View = (() => {
 
   function renderInspector(doc, sel) {
     if (!doc || !sel) {
-      return `<div class="ins-empty">Kliknite na ľubovoľný údaj vo faktúre – zobrazí sa, z ktorého elementu XML pochádza (BT kód, XPath, riadok).</div>`;
+      return `<div class="ins-empty">Kliknite na ľubovoľný údaj vo faktúre – zobrazí sa, z ktorého elementu XML pochádza (BT kód, XPath, riadok). V záložke XML stačí prejsť myšou po kóde a údaj sa vyznačí vo faktúre.</div>`;
     }
     if (sel.type === 'field') {
       const f = doc.model.fields[sel.id];
       const grp = f.group && (window.SK_BT || {})[f.group];
       const formatted = f.missing ? '' : fmtValue(f);
+      const cl = U.codeList(f, doc.model.isCN);
       return `<div class="ins-h"><span class="ins-bt">${esc(f.bt === 'TECH' ? 'technický' : f.bt)}</span><b>${esc(f.label)}</b>${grp ? `<span class="grp">${esc(f.group)} · ${esc(grp.n)}</span>` : ''}</div>
         <div class="ins-row"><span class="k">Hodnota</span><span class="v">${f.missing ? '<i>Element v XML chýba</i>' : formatted}</span></div>
         ${!f.missing && f.fmt !== 'bin' && f.raw !== null ? `<div class="ins-row"><span class="k">Text v XML</span><code class="raw">${esc(f.raw)}</code></div>` : ''}
         ${f.fixed ? `<div class="ins-row"><span class="k">Správne asi</span><span class="v fixed-v">${esc(f.fixed)}</span></div>` : ''}
         <div class="ins-row"><span class="k">${f.missing ? 'Očakávané v' : 'XPath'}</span><code class="xp">${esc(f.xpath)}</code><button class="btn tiny" data-copy="${esc(f.xpath)}">Kopírovať</button></div>
         <div class="ins-row"><span class="k">Riadok</span><span class="v">${f.line ? `<a href="#" data-goto-line="${f.line}">${f.line}</a> <span class="muted small">(zobraziť v XML)</span>` : '—'}</span></div>
+        ${cl ? `<div class="ins-row"><span class="k">Číselník</span><span class="v"><a href="${esc(cl.url)}" target="_blank" rel="noopener">${esc(cl.name)} ↗</a></span></div>` : ''}
         ${insFindings(doc, f.findings)}
         ${btInfoHtml(f.bt)}`;
     }
@@ -3880,7 +4067,7 @@ const View = (() => {
 
   return {
     setOpts, renderInvoice, renderXml, renderFindings, renderMapping, renderAttachments,
-    renderInspector, renderStatus, counts, SEV_RANK
+    renderInspector, renderStatus, hoverCard, counts, SEV_RANK
   };
 })();
 
@@ -3893,7 +4080,7 @@ const App = (() => {
   const state = { docs: [], cur: -1, tab: 'findings', filter: 'all', mapQ: '', mapMissing: false, sel: null, opts: loadOpts() };
   let docSeq = 0;
   let queue = Promise.resolve();
-  const xmlView = { docId: null, lines: [] };
+  const xmlView = { docId: null, lines: [], byLine: new Map() };
 
   function loadOpts() {
     try { return Object.assign({}, DEFAULT_OPTS, JSON.parse(localStorage.getItem('efv-opts') || '{}')); }
@@ -4032,6 +4219,8 @@ const App = (() => {
   }
 
   function renderAll() {
+    clearHover();
+    paperIdx = null;
     View.setOpts(state.opts);
     const b = document.body;
     b.classList.toggle('show-bt', state.opts.showBT);
@@ -4082,6 +4271,7 @@ const App = (() => {
       body.innerHTML = View.renderXml(d);
       xmlView.docId = d.uid;
       xmlView.lines = $$('.xl', body);
+      xmlView.byLine = new Map(xmlView.lines.map(el => [+el.dataset.l, el]));
     }
     $('#xml-info').textContent = `${U.fmtNum(d.parsed.lineStarts.length)} riadkov · ${U.fmtSize(d.size)}` + (d.repaired ? ' · zobrazená opravená kópia' : '');
   }
@@ -4164,11 +4354,11 @@ const App = (() => {
     markSelection(o.scroll !== false);
   }
 
-  function selectNode(nid, o) {
+  function selectNode(nid, o, attr) {
     const d = cur();
     if (!d || !d.model) return select({ type: 'node', id: nid }, o);
-    const fs = d.model.fields.filter(f => f.node && f.node.nid === nid);
-    const best = fs.find(f => !f.tech && !f.attr) || fs.find(f => !f.tech) || fs[0];
+    const fs = fieldsByNode(d).get(nid) || [];
+    const best = (attr && fs.find(f => f.attr === attr)) || fs.find(f => !f.tech && !f.attr) || fs.find(f => !f.tech) || fs[0];
     select(best ? { type: 'field', id: best.id } : { type: 'node', id: nid }, o);
   }
 
@@ -4236,23 +4426,241 @@ const App = (() => {
   }
   function applyLayout() { document.documentElement.style.setProperty('--left-w', state.opts.leftW + '%'); }
 
-  /* ---------- tooltip ---------- */
-  function showTip(el) {
+  /* ---------- prechod myšou: XML ↔ vizuál (zvýraznenie, spojnica, karta) ---------- */
+  const wide = window.matchMedia('(min-width: 901px)');
+  const hov = { key: null, mode: null, H: null, lineEl: null, tipEl: null, xmlLines: [], els: [], cardT: 0, scrollT: 0, raf: 0 };
+  let paperIdx = null;
+  const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+
+  function paperEls(id) {
+    if (!paperIdx) {
+      paperIdx = new Map();
+      for (const el of $$('#paper .f[data-f]')) {
+        const k = +el.dataset.f;
+        if (!paperIdx.has(k)) paperIdx.set(k, []);
+        paperIdx.get(k).push(el);
+      }
+    }
+    return paperIdx.get(id) || [];
+  }
+
+  function fieldsByNode(d) {
+    if (!d.byNode) {
+      d.byNode = new Map();
+      for (const f of d.model ? d.model.fields : []) {
+        if (!f.node) continue;
+        if (!d.byNode.has(f.node.nid)) d.byNode.set(f.node.nid, []);
+        d.byNode.get(f.node.nid).push(f);
+      }
+    }
+    return d.byNode;
+  }
+
+  function xmlLineEl(no) {
+    for (let l = no; l >= 1; l--) { const el = xmlView.byLine.get(l); if (el) return el; }
+    return null;
+  }
+
+  /** Element v XML pod myšou: span s data-n; pri odsadení alebo čísle riadku prvý neprázdny token riadka. */
+  function xmlTarget(t) {
+    const line = t.closest('#xml-body .xl');
+    if (!line) return null;
+    let span = t.closest('[data-n]');
+    if (!span || !span.textContent.trim()) span = $$('[data-n]', line).find(s => s.textContent.trim()) || null;
+    return span ? { line, span, nid: +span.dataset.n, attr: span.dataset.a || null } : null;
+  }
+
+  /** Ktoré polia patria k elementu: vlastné (atribút → jeho pole), inak polia potomkov (agregát = skupina BG). */
+  function resolveNode(d, nid, attr) {
+    const n = d.parsed.nodes[nid];
+    if (!n || n === d.parsed.root) return null;
+    const H = { mode: 'xml', kind: 'none', node: n, attr, fields: [], shown: new Set(), group: null, findings: [] };
+    if (d.model) {
+      const own = fieldsByNode(d).get(nid) || [];
+      let fs = attr ? own.filter(f => f.attr === attr) : [];
+      if (!fs.length) fs = own.slice().sort((a, b) => (a.attr ? 1 : 0) - (b.attr ? 1 : 0));
+      if (fs.length) H.kind = 'field';
+      else if (n.children.length) {
+        fs = d.model.fields.filter(f => f.node && f.node !== n && XP.isAncestorOrSelf(n, f.node));
+        H.group = ublGroup(n);
+        H.kind = fs.length === 1 && !H.group ? 'field' : fs.length ? 'group' : 'none';
+      }
+      H.fields = fs;
+      for (const f of fs) if (paperEls(f.id).length) H.shown.add(f.id);
+    }
+    H.findings = H.fields.flatMap(f => f.findings).concat(d.findings.filter(fd => fd.node === n));
+    return H;
+  }
+
+  function clearHover() {
+    clearTimeout(hov.cardT); clearTimeout(hov.scrollT);
+    if (!hov.key) return;
+    hov.els.forEach(el => el.classList.remove('hov', 'hov-g'));
+    hov.xmlLines.forEach(el => el.classList.remove('hov', 'hov-r'));
+    Object.assign(hov, { key: null, mode: null, H: null, lineEl: null, tipEl: null, xmlLines: [], els: [] });
+    $('#tip').hidden = true;
+    $('#links').innerHTML = '';
+  }
+
+  function xmlHover(e) {
     const d = cur();
-    if (!d || !d.model) return;
-    const f = d.model.fields[+el.dataset.f];
-    if (!f) return;
+    const T = d && xmlTarget(e.target);
+    if (!T) { clearHover(); return; }
+    const key = `x${T.nid}:${T.attr || ''}:${T.line.dataset.l}`;
+    if (key === hov.key) return;
+    clearHover();
+    const H = resolveNode(d, T.nid, T.attr);
+    if (!H) return;
+    Object.assign(hov, { key, mode: 'xml', H, lineEl: T.line });
+    if (H.kind === 'group') {
+      for (let l = H.node.line; l <= H.node.endLine; l++) {
+        const el = xmlView.byLine.get(l);
+        if (el) { el.classList.add('hov-r'); hov.xmlLines.push(el); }
+      }
+    }
+    T.line.classList.add('hov');
+    hov.xmlLines.push(T.line);
+    hov.els = H.fields.flatMap(f => paperEls(f.id));
+    hov.els.forEach(el => el.classList.add(H.kind === 'group' ? 'hov-g' : 'hov'));
+    drawLinks();
+    if (hov.els.length && wide.matches) hov.scrollT = setTimeout(revealPaper, 140);
+    hov.cardT = setTimeout(() => { if (hov.key === key) showCard(d, H, T.line); }, 220);
+  }
+
+  function paperHover(el) {
+    const d = cur();
+    const f = d && d.model && d.model.fields[+el.dataset.f];
+    if (!f || (hov.key === 'p' + f.id && hov.tipEl === el)) return;
+    clearHover();
+    Object.assign(hov, { key: 'p' + f.id, mode: 'paper', tipEl: el });
+    const link = state.tab === 'xml' && !!f.node && wide.matches;
+    if (link) {
+      const a = f.attr ? f.line : f.node.line;
+      const b = f.attr || f.node === d.parsed.root ? a : f.node.endLine;
+      for (let l = a; l <= b; l++) {
+        const x = l === a ? xmlLineEl(l) : xmlView.byLine.get(l);
+        if (x && !hov.xmlLines.includes(x)) { x.classList.add('hov'); hov.xmlLines.push(x); }
+      }
+      el.classList.add('hov');
+      hov.els = [el];
+      drawLinks();
+      hov.scrollT = setTimeout(revealXml, 140);
+    }
+    showCard(d, { mode: 'paper', kind: 'field', fields: [f], shown: new Set([f.id]), findings: f.findings }, el, link);
+  }
+
+  /** Karta: pri XML pod riadkom (ako v náhľade), pri vizuáli nad údajom tak, aby nezakryla XML. */
+  function showCard(d, H, anchor, link) {
     const tip = $('#tip');
-    tip.innerHTML = `<b>${U.esc(f.bt === 'TECH' ? 'technický' : f.bt)}</b> ${U.esc(f.label)}<br><code>${U.esc(f.xpath)}</code>${f.line ? ` <span class="muted">· riadok ${f.line}</span>` : ''}` +
-      (f.findings.length ? `<div class="tip-f s-${f.sev}">${U.esc(f.findings[0].text)}${f.findings.length > 1 ? ` (+${f.findings.length - 1})` : ''}</div>` : '');
+    const card = H.mode === 'xml';
+    tip.innerHTML = View.hoverCard(d, H);
+    tip.classList.toggle('card', card);
+    const br = $('#xml-body').getBoundingClientRect();
+    tip.style.maxWidth = card ? Math.max(260, Math.min(420, br.width - 72)) + 'px' : '';
     tip.hidden = false;
-    const r = el.getBoundingClientRect();
+    const r = anchor.getBoundingClientRect();
     const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let x = Math.min(window.innerWidth - tw - 8, Math.max(8, r.left));
-    let y = r.bottom + 6;
-    if (y + th > window.innerHeight - 8) y = r.top - th - 6;
+    const above = r.top - th - 6, below = r.bottom + 6;
+    let x, y;
+    if (card) {
+      x = clamp(br.left + 64, 8, window.innerWidth - tw - 8);
+      y = below + th > window.innerHeight - 8 ? above : below;
+    } else {
+      x = Math.max(8, Math.min(r.left, (link ? br.left - 8 : window.innerWidth - 8) - tw));
+      y = link ? (above >= 8 ? above : below) : (below + th > window.innerHeight - 8 ? above : below);
+    }
     tip.style.left = x + 'px';
-    tip.style.top = y + 'px';
+    tip.style.top = Math.max(8, y) + 'px';
+  }
+
+  /** Obdĺžniky prvkov zlúčené do zhlukov – najprv podľa bloku vizuálu (riadok tabuľky, sekcia), potom podľa blízkosti. */
+  const BLOCK = 'tr, .party, .box, .inv-head > div, .inv-foot';
+  function clusters(els) {
+    const G = 22;
+    const byBlock = new Map();
+    for (const el of els) {
+      if (!el.isConnected) continue;
+      const r = el.getBoundingClientRect();
+      if (!(r.width > 0 && r.height > 0)) continue;
+      const blk = el.closest(BLOCK) || el;
+      const c = byBlock.get(blk);
+      if (c) Object.assign(c, { l: Math.min(c.l, r.left), t: Math.min(c.t, r.top), r: Math.max(c.r, r.right), b: Math.max(c.b, r.bottom), n: c.n + 1 });
+      else byBlock.set(blk, { l: r.left, t: r.top, r: r.right, b: r.bottom, n: 1 });
+    }
+    const cs = [...byBlock.values()];
+    for (let merged = true; merged;) {
+      merged = false;
+      for (let i = 0; i < cs.length && !merged; i++) {
+        for (let j = i + 1; j < cs.length; j++) {
+          const a = cs[i], b = cs[j];
+          if (a.l - G <= b.r && b.l - G <= a.r && a.t - G <= b.b && b.t - G <= a.b) {
+            cs[i] = { l: Math.min(a.l, b.l), t: Math.min(a.t, b.t), r: Math.max(a.r, b.r), b: Math.max(a.b, b.b), n: a.n + b.n };
+            cs.splice(j, 1);
+            merged = true;
+            break;
+          }
+        }
+      }
+    }
+    return cs.sort((a, b) => a.t - b.t);
+  }
+
+  function paperView() {
+    const left = $('#left');
+    const lb = left.getBoundingClientRect();
+    return { l: lb.left, r: lb.left + left.clientWidth, t: $('.left-bar', left).getBoundingClientRect().bottom, b: lb.top + left.clientHeight };
+  }
+
+  function drawLinks() {
+    const svg = $('#links');
+    const anchor = hov.mode === 'xml' ? hov.lineEl : hov.xmlLines[0];
+    if (!hov.key || !anchor || !anchor.isConnected || !hov.els.length || !wide.matches || state.tab !== 'xml') { svg.innerHTML = ''; return; }
+    const xb = $('#xml-body').getBoundingClientRect();
+    const ar = anchor.getBoundingClientRect();
+    const ax = xb.left + 3, ay = clamp(ar.top + ar.height / 2, xb.top + 4, xb.bottom - 4);
+    const V = paperView();
+    const group = hov.H && hov.H.kind === 'group';
+    let boxes = '', lines = '', dots = `<circle class="lk-dot" cx="${ax}" cy="${ay}" r="4"/>`;
+    for (const c of clusters(hov.els).slice(0, 4)) {
+      const inView = c.b > V.t && c.t < V.b;
+      if (inView && group) {
+        boxes += `<rect class="lk-box" x="${c.l - 5}" y="${c.t - 4}" width="${c.r - c.l + 10}" height="${c.b - c.t + 8}" rx="5"/>`;
+      }
+      const px = Math.min(c.r + (group ? 5 : 3), V.r - 3);
+      const py = clamp((c.t + c.b) / 2, V.t + 5, V.b - 5);
+      const k = Math.max(36, (ax - px) * 0.5);
+      const dPath = `M${px},${py} C${px + k},${py} ${ax - k},${ay} ${ax},${ay}`;
+      lines += `<path class="lk-halo" d="${dPath}"/><path class="lk-line" d="${dPath}"/>`;
+      dots += `<circle class="lk-dot" cx="${px}" cy="${py}" r="3.5"/>`;
+    }
+    svg.innerHTML = `<defs><clipPath id="lk-clip"><rect x="${V.l}" y="${V.t}" width="${V.r - V.l}" height="${Math.max(0, V.b - V.t)}"/></clipPath></defs>` +
+      `<g clip-path="url(#lk-clip)">${boxes}</g>${lines}${dots}`;
+  }
+
+  function scheduleDraw() {
+    if (!hov.raf) hov.raf = requestAnimationFrame(() => { hov.raf = 0; drawLinks(); });
+  }
+
+  /** Ak údaj nie je vo vizuáli viditeľný, posunie ho do zorného poľa. */
+  function revealPaper() {
+    if (hov.mode !== 'xml' || !hov.els.length) return;
+    const V = paperView();
+    const cs = clusters(hov.els);
+    if (!cs.length || cs.some(c => c.t >= V.t + 4 && c.b <= V.b - 4)) return;
+    const h = V.b - V.t, mid = V.t + h / 2;
+    const c = cs.reduce((p, q) => (Math.abs((q.t + q.b) / 2 - mid) < Math.abs((p.t + p.b) / 2 - mid) ? q : p));
+    const delta = c.b - c.t > h - 40 ? c.t - V.t - 16 : (c.t + c.b) / 2 - (V.t + h * 0.4);
+    $('#left').scrollBy({ top: delta, behavior: 'smooth' });
+  }
+
+  function revealXml() {
+    if (hov.mode !== 'paper' || !hov.xmlLines.length) return;
+    const body = $('#xml-body');
+    const br = body.getBoundingClientRect();
+    const r = hov.xmlLines[0].getBoundingClientRect();
+    const r2 = hov.xmlLines[hov.xmlLines.length - 1].getBoundingClientRect();
+    if (r.top >= br.top + 4 && r2.bottom <= br.bottom - 4) return;
+    body.scrollBy({ top: r.top - (br.top + br.height * 0.4), behavior: 'smooth' });
   }
 
   /* ---------- udalosti ---------- */
@@ -4277,6 +4685,7 @@ const App = (() => {
       renderAll();
     }));
     $$('.tab').forEach(t => t.addEventListener('click', () => {
+      clearHover();
       state.tab = t.dataset.tab;
       renderTabs();
       markSelection(true);
@@ -4319,7 +4728,9 @@ const App = (() => {
         select({ type: 'field', id: +fEl.dataset.f }, { tab: inPaper ? 'xml' : undefined });
         return;
       }
-      const nEl = t.closest('#xml-body [data-n], #map-body [data-n]');
+      const xt = xmlTarget(t);
+      if (xt) { selectNode(xt.nid, undefined, xt.attr); return; }
+      const nEl = t.closest('#map-body [data-n]');
       if (nEl) { selectNode(+nEl.dataset.n); return; }
       const lineEl = t.closest('#xml-body .xl');
       if (lineEl) { select({ type: 'line', line: +lineEl.dataset.l }); }
@@ -4330,9 +4741,21 @@ const App = (() => {
     });
 
     const paper = $('#paper');
-    paper.addEventListener('mouseover', e => { const el = e.target.closest('.f[data-f]'); if (el) showTip(el); });
-    paper.addEventListener('mouseout', e => { if (e.target.closest('.f[data-f]')) $('#tip').hidden = true; });
-    $('#left').addEventListener('scroll', () => { $('#tip').hidden = true; }, { passive: true });
+    paper.addEventListener('mouseover', e => { const el = e.target.closest('.f[data-f]'); if (el) paperHover(el); });
+    paper.addEventListener('mouseout', e => {
+      const el = e.target.closest('.f[data-f]');
+      if (el && !el.contains(e.relatedTarget) && hov.mode === 'paper') clearHover();
+    });
+    // pri prechode po XML sa vizuál posúva programovo – vtedy sa spojnica len prekreslí
+    $('#left').addEventListener('scroll', () => { if (hov.mode === 'paper') clearHover(); else if (hov.mode) scheduleDraw(); }, { passive: true });
+    const xmlBody = $('#xml-body');
+    xmlBody.addEventListener('mousemove', xmlHover);
+    xmlBody.addEventListener('mouseleave', () => { if (hov.mode === 'xml') clearHover(); });
+    xmlBody.addEventListener('scroll', () => {
+      if (hov.mode === 'xml') $('#tip').hidden = true;
+      if (hov.mode) scheduleDraw();
+    }, { passive: true });
+    window.addEventListener('resize', clearHover);
 
     // drag & drop
     let dragDepth = 0;

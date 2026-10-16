@@ -54,7 +54,7 @@
   </section>
 
   <section id="left" class="left">
-    <div class="left-bar"><span id="doc-name"></span><span class="hint">Kliknite na údaj → zobrazí sa jeho zdroj v XML · podržte myš pre BT a XPath</span></div>
+    <div class="left-bar"><span id="doc-name"></span><span class="hint">Kliknite na údaj → zobrazí sa jeho zdroj v XML · v záložke XML stačí prejsť myšou po kóde</span></div>
     <div id="paper"></div>
   </section>
   <div id="gutter" class="gutter" title="Ťahaním zmeníte šírku panelov"></div>
@@ -90,6 +90,7 @@
       <div class="pane-body about">
         <h3>Čo nástroj robí</h3>
         <p>Zobrazí e-faktúru (UBL 2.1, Peppol BIS Billing 3.0) ako čitateľný doklad a pri každom údaji ukáže, z ktorého elementu XML pochádza – kód obchodného termínu (BT) podľa EN 16931, XPath a číslo riadku. Súčasne doklad overí oficiálnymi validačnými pravidlami a doplnkovými slovenskými kontrolami.</p>
+        <p>Prepojenie funguje oboma smermi: kliknutím na údaj vo faktúre sa zobrazí jeho zdroj v XML a v záložke <b>XML</b> stačí prejsť myšou po kóde – príslušný údaj sa vo faktúre vyznačí, spojí čiarou s riadkom XML a zobrazí sa karta s názvom poľa, popisom a číselníkom. Pri agregátoch (napr. <code>cac:InvoiceLine</code>) sa vyznačí celá skupina údajov.</p>
         <h3>Validácia</h3>
         <ul>
           <li><b>EN 16931 (CEN)</b> a <b>Peppol BIS Billing 3.0</b> – oficiálne Schematron pravidlá (<span id="about-rules"></span>), rovnaké, aké používajú prístupové body Peppol. Ak doklad nevyhovuje týmto pravidlám, sieť Peppol ho odmietne.</li>
@@ -131,6 +132,7 @@
   </section>
 </main>
 <div class="drop-overlay"><div>Pustite XML súbory sem</div></div>
+<svg id="links" class="links" aria-hidden="true"></svg>
 <div id="tip" class="tip" hidden></div>
 <div id="toast" class="toast" hidden></div>
 

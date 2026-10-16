@@ -203,10 +203,10 @@ const View = (() => {
         <td class="num strong">${fv(L.net, { empty: true })}</td>
       </tr>`;
     }).join('');
-    return `<table class="lines">
+    return `<div class="lines-wrap"><table class="lines">
       <thead><tr><th>#</th><th>Položka</th><th class="num">Množstvo</th><th>MJ</th><th class="num">Cena/MJ bez DPH</th><th class="num">DPH</th><th class="num">Spolu bez DPH</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="7" class="muted">Faktúra neobsahuje žiadne riadky.</td></tr>'}</tbody>
-    </table>`;
+    </table></div>`;
   }
 
   function docAcHtml(D) {
@@ -325,12 +325,12 @@ const View = (() => {
     const lines = [];
     let cur = '', no = 1;
     const flush = () => { lines.push(`<div class="xl" data-l="${no}"><span class="ln">${no}</span><span class="lc">${cur || ' '}</span></div>`); cur = ''; };
-    const emit = (text, cls, nid) => {
+    const emit = (text, cls, nid, attr) => {
       const parts = text.split('\n');
       for (let i = 0; i < parts.length; i++) {
         if (i > 0) { flush(); no++; }
         const p = parts[i].replace(/\r$/, '');
-        if (p) cur += cls || nid >= 0 ? `<span${cls ? ` class="${cls}"` : ''}${nid >= 0 ? ` data-n="${nid}"` : ''}>${esc(p)}</span>` : esc(p);
+        if (p) cur += cls || nid >= 0 ? `<span${cls ? ` class="${cls}"` : ''}${nid >= 0 ? ` data-n="${nid}"` : ''}${attr ? ` data-a="${esc(attr)}"` : ''}>${esc(p)}</span>` : esc(p);
       }
     };
     for (const tk of P.tokens) {
@@ -340,13 +340,99 @@ const View = (() => {
         cur += `<span class="x-text" data-n="${tk.nid}">${esc(s.slice(0, 100).replace(/\s+/g, ' '))}</span><span class="x-trunc" data-n="${tk.nid}">… skrytých ${esc(U.fmtNum(s.length))} znakov${nl ? ' / ' + nl + ' riadkov' : ''}</span>`;
         if (nl) { flush(); no += nl; }
       } else if (tk.t === 'open' || tk.t === 'empty' || tk.t === 'close') {
-        for (const [txt, cls] of tagSegments(s)) emit(txt, cls, tk.nid);
+        // názov atribútu, „=“ a hodnota nesú data-a, aby sa dal rozlíšiť napr. @unitCode od samotného elementu
+        let attr = null;
+        for (const [txt, cls] of tagSegments(s)) {
+          if (cls === 'x-an') attr = /^xmlns(:|$)/.test(txt) ? null : txt.replace(/^[^:]*:/, '');
+          else if (cls !== 'x-av' && txt !== '=') attr = null;
+          emit(txt, cls, tk.nid, attr);
+          if (cls === 'x-av') attr = null;
+        }
       } else {
         emit(s, tk.t === 'text' ? 'x-text' : 'x-' + tk.t, tk.nid);
       }
     }
     flush();
     return lines.join('');
+  }
+
+  /* ---------- karta pri prechode myšou (XML ↔ vizuál) ---------- */
+  function plainValue(f) {
+    if (f.missing) return '';
+    const v = dispVal(f) || '';
+    switch (f.fmt) {
+      case 'date': return U.fmtDate(v);
+      case 'amount': return U.fmtAmount(v, f.cur);
+      case 'qty': return U.fmtQty(v);
+      case 'pct': return U.fmtPct(v);
+      case 'country': { const n = U.countryName(v); return n !== v ? `${n} (${v})` : v; }
+      case 'code': { const l = f.list ? U.codeLabel(f.list, v) : ''; return l ? `${l} (${v})` : v; }
+      case 'bin': return `obsah base64 – ${U.fmtSize(SK.attachmentInfo(f.raw).size)}`;
+      default: return v.length > 140 ? v.slice(0, 140) + '…' : v;
+    }
+  }
+
+  function shortDesc(key) {
+    const I = (window.SK_BT || {})[key];
+    if (!I || !I.d) return '';
+    const t = I.d.split('\n')[0].trim();
+    return t.length > 220 ? t.slice(0, 217).replace(/\s+\S*$/, '') + '…' : t;
+  }
+
+  function cardFindings(list) {
+    const uniq = [...new Set(list)].sort((a, b) => SEV_RANK[a.flag] - SEV_RANK[b.flag]);
+    return uniq.slice(0, 2).map(fd => `<div class="tip-f s-${fd.flag}">${esc(fd.text)}</div>`).join('') +
+      (uniq.length > 2 ? `<div class="hc-more">+ ďalšie nálezy: ${uniq.length - 2}</div>` : '');
+  }
+
+  const linesTxt = n => (n.endLine > n.line ? `riadky ${n.line}–${n.endLine}` : `riadok ${n.line}`);
+
+  /**
+   * H: { mode: 'xml'|'paper', kind: 'field'|'group'|'none', node, attr, fields, shown (Set id), group, findings }
+   */
+  function hoverCard(doc, H) {
+    const D = doc.model;
+    const f0 = H.fields[0];
+    if (H.mode === 'paper') {
+      return `<div class="hc-top"><span class="hc-bt">${esc(f0.bt === 'TECH' ? 'technický' : f0.bt)}</span><span class="hc-badge${f0.missing ? ' off' : ''}">${f0.missing ? 'v XML chýba' : 'XML · riadok ' + f0.line}</span></div>
+        <div class="hc-title">${esc(f0.label)}</div>
+        <div class="hc-el"><code>${esc(f0.xpath)}</code></div>
+        ${cardFindings(f0.findings)}`;
+    }
+    const n = H.node;
+    const shownN = H.fields.filter(f => H.shown.has(f.id)).length;
+    const badge = shownN ? '<span class="hc-badge ok">Zobrazené v náhľade</span>' : '<span class="hc-badge off">Nie je vo vizuáli</span>';
+    const el = `<div class="hc-el"><code>${esc(n.name)}${H.attr ? ' @' + esc(H.attr) : ''}</code> · ${H.kind === 'group' || H.kind === 'none' ? linesTxt(n) : 'riadok ' + (H.attr ? (H.fields[0].line || n.line) : n.line)}</div>`;
+    const hint = D && H.kind !== 'none' ? '<div class="hc-hint">Kliknutím zobrazíte detail</div>' : '';
+    if (H.kind === 'field') {
+      const subs = H.fields.slice(1, 4).map(s => `<div class="hc-sub"><span class="k">${esc(s.attr ? '@' + s.attr : (s.bt === 'TECH' ? '' : s.bt))}</span> ${esc(s.label)}: <b>${esc(plainValue(s))}</b></div>`).join('');
+      const cl = H.fields.map(f => U.codeList(f, D.isCN)).find(Boolean);
+      const desc = f0.bt === 'TECH' ? 'Technický údaj – vo vizuáli faktúry sa nezobrazuje.' : shortDesc(f0.bt);
+      return `<div class="hc-top">${badge}<span class="hc-bt">${esc(f0.bt === 'TECH' ? 'technický' : f0.bt)}</span></div>
+        <div class="hc-title">${esc(f0.label)}</div>
+        <div class="hc-val"><span class="k">Hodnota</span> <b>${esc(plainValue(f0))}</b></div>${subs}
+        ${desc ? `<div class="hc-desc">${esc(desc)}</div>` : ''}
+        ${cl ? `<div class="hc-list">Číselník: ${esc(cl.name)}</div>` : ''}
+        ${el}${cardFindings(H.findings)}${hint}`;
+    }
+    if (H.kind === 'group') {
+      const g = H.group && (window.SK_BT || {})[H.group];
+      return `<div class="hc-top">${badge}<span class="hc-bt">${esc(H.group || 'skupina')}</span></div>
+        <div class="hc-title">${esc(g ? U.sentence(g.n) : n.name)}</div>
+        ${g ? `<div class="hc-desc">${esc(shortDesc(H.group))}</div>` : ''}
+        <div class="hc-val">${H.fields.length} ${U.plural(H.fields.length, 'údaj', 'údaje', 'údajov')} · ${shownN} vo vizuáli</div>
+        ${el}${cardFindings(H.findings)}${hint}`;
+    }
+    const txt = (n.text || '').trim();
+    const why = !D ? 'Vizualizácia nie je k dispozícii.'
+      : n === doc.parsed.root ? 'Koreňový element dokumentu.'
+      : n.children.length ? 'Agregát bez údajov zobrazených vo vizuáli.'
+      : 'Element nemá priradený obchodný termín (BT) Peppol BIS 3.0 – vo vizuáli sa nezobrazuje.';
+    return `<div class="hc-top">${badge}</div>
+      <div class="hc-title">${esc(n.name)}</div>
+      ${txt && !n.children.length ? `<div class="hc-val"><span class="k">Hodnota</span> <b>${esc(txt.length > 140 ? txt.slice(0, 140) + '…' : txt)}</b></div>` : ''}
+      <div class="hc-desc">${esc(why)}</div>
+      ${el}${cardFindings(H.findings)}`;
   }
 
   /* ---------- nálezy ---------- */
@@ -435,18 +521,20 @@ const View = (() => {
 
   function renderInspector(doc, sel) {
     if (!doc || !sel) {
-      return `<div class="ins-empty">Kliknite na ľubovoľný údaj vo faktúre – zobrazí sa, z ktorého elementu XML pochádza (BT kód, XPath, riadok).</div>`;
+      return `<div class="ins-empty">Kliknite na ľubovoľný údaj vo faktúre – zobrazí sa, z ktorého elementu XML pochádza (BT kód, XPath, riadok). V záložke XML stačí prejsť myšou po kóde a údaj sa vyznačí vo faktúre.</div>`;
     }
     if (sel.type === 'field') {
       const f = doc.model.fields[sel.id];
       const grp = f.group && (window.SK_BT || {})[f.group];
       const formatted = f.missing ? '' : fmtValue(f);
+      const cl = U.codeList(f, doc.model.isCN);
       return `<div class="ins-h"><span class="ins-bt">${esc(f.bt === 'TECH' ? 'technický' : f.bt)}</span><b>${esc(f.label)}</b>${grp ? `<span class="grp">${esc(f.group)} · ${esc(grp.n)}</span>` : ''}</div>
         <div class="ins-row"><span class="k">Hodnota</span><span class="v">${f.missing ? '<i>Element v XML chýba</i>' : formatted}</span></div>
         ${!f.missing && f.fmt !== 'bin' && f.raw !== null ? `<div class="ins-row"><span class="k">Text v XML</span><code class="raw">${esc(f.raw)}</code></div>` : ''}
         ${f.fixed ? `<div class="ins-row"><span class="k">Správne asi</span><span class="v fixed-v">${esc(f.fixed)}</span></div>` : ''}
         <div class="ins-row"><span class="k">${f.missing ? 'Očakávané v' : 'XPath'}</span><code class="xp">${esc(f.xpath)}</code><button class="btn tiny" data-copy="${esc(f.xpath)}">Kopírovať</button></div>
         <div class="ins-row"><span class="k">Riadok</span><span class="v">${f.line ? `<a href="#" data-goto-line="${f.line}">${f.line}</a> <span class="muted small">(zobraziť v XML)</span>` : '—'}</span></div>
+        ${cl ? `<div class="ins-row"><span class="k">Číselník</span><span class="v"><a href="${esc(cl.url)}" target="_blank" rel="noopener">${esc(cl.name)} ↗</a></span></div>` : ''}
         ${insFindings(doc, f.findings)}
         ${btInfoHtml(f.bt)}`;
     }
@@ -518,6 +606,6 @@ const View = (() => {
 
   return {
     setOpts, renderInvoice, renderXml, renderFindings, renderMapping, renderAttachments,
-    renderInspector, renderStatus, counts, SEV_RANK
+    renderInspector, renderStatus, hoverCard, counts, SEV_RANK
   };
 })();

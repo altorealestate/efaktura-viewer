@@ -7,7 +7,7 @@ const App = (() => {
   const state = { docs: [], cur: -1, tab: 'findings', filter: 'all', mapQ: '', mapMissing: false, sel: null, opts: loadOpts() };
   let docSeq = 0;
   let queue = Promise.resolve();
-  const xmlView = { docId: null, lines: [] };
+  const xmlView = { docId: null, lines: [], byLine: new Map() };
 
   function loadOpts() {
     try { return Object.assign({}, DEFAULT_OPTS, JSON.parse(localStorage.getItem('efv-opts') || '{}')); }
@@ -146,6 +146,8 @@ const App = (() => {
   }
 
   function renderAll() {
+    clearHover();
+    paperIdx = null;
     View.setOpts(state.opts);
     const b = document.body;
     b.classList.toggle('show-bt', state.opts.showBT);
@@ -196,6 +198,7 @@ const App = (() => {
       body.innerHTML = View.renderXml(d);
       xmlView.docId = d.uid;
       xmlView.lines = $$('.xl', body);
+      xmlView.byLine = new Map(xmlView.lines.map(el => [+el.dataset.l, el]));
     }
     $('#xml-info').textContent = `${U.fmtNum(d.parsed.lineStarts.length)} riadkov · ${U.fmtSize(d.size)}` + (d.repaired ? ' · zobrazená opravená kópia' : '');
   }
@@ -278,11 +281,11 @@ const App = (() => {
     markSelection(o.scroll !== false);
   }
 
-  function selectNode(nid, o) {
+  function selectNode(nid, o, attr) {
     const d = cur();
     if (!d || !d.model) return select({ type: 'node', id: nid }, o);
-    const fs = d.model.fields.filter(f => f.node && f.node.nid === nid);
-    const best = fs.find(f => !f.tech && !f.attr) || fs.find(f => !f.tech) || fs[0];
+    const fs = fieldsByNode(d).get(nid) || [];
+    const best = (attr && fs.find(f => f.attr === attr)) || fs.find(f => !f.tech && !f.attr) || fs.find(f => !f.tech) || fs[0];
     select(best ? { type: 'field', id: best.id } : { type: 'node', id: nid }, o);
   }
 
@@ -350,23 +353,241 @@ const App = (() => {
   }
   function applyLayout() { document.documentElement.style.setProperty('--left-w', state.opts.leftW + '%'); }
 
-  /* ---------- tooltip ---------- */
-  function showTip(el) {
+  /* ---------- prechod myšou: XML ↔ vizuál (zvýraznenie, spojnica, karta) ---------- */
+  const wide = window.matchMedia('(min-width: 901px)');
+  const hov = { key: null, mode: null, H: null, lineEl: null, tipEl: null, xmlLines: [], els: [], cardT: 0, scrollT: 0, raf: 0 };
+  let paperIdx = null;
+  const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
+
+  function paperEls(id) {
+    if (!paperIdx) {
+      paperIdx = new Map();
+      for (const el of $$('#paper .f[data-f]')) {
+        const k = +el.dataset.f;
+        if (!paperIdx.has(k)) paperIdx.set(k, []);
+        paperIdx.get(k).push(el);
+      }
+    }
+    return paperIdx.get(id) || [];
+  }
+
+  function fieldsByNode(d) {
+    if (!d.byNode) {
+      d.byNode = new Map();
+      for (const f of d.model ? d.model.fields : []) {
+        if (!f.node) continue;
+        if (!d.byNode.has(f.node.nid)) d.byNode.set(f.node.nid, []);
+        d.byNode.get(f.node.nid).push(f);
+      }
+    }
+    return d.byNode;
+  }
+
+  function xmlLineEl(no) {
+    for (let l = no; l >= 1; l--) { const el = xmlView.byLine.get(l); if (el) return el; }
+    return null;
+  }
+
+  /** Element v XML pod myšou: span s data-n; pri odsadení alebo čísle riadku prvý neprázdny token riadka. */
+  function xmlTarget(t) {
+    const line = t.closest('#xml-body .xl');
+    if (!line) return null;
+    let span = t.closest('[data-n]');
+    if (!span || !span.textContent.trim()) span = $$('[data-n]', line).find(s => s.textContent.trim()) || null;
+    return span ? { line, span, nid: +span.dataset.n, attr: span.dataset.a || null } : null;
+  }
+
+  /** Ktoré polia patria k elementu: vlastné (atribút → jeho pole), inak polia potomkov (agregát = skupina BG). */
+  function resolveNode(d, nid, attr) {
+    const n = d.parsed.nodes[nid];
+    if (!n || n === d.parsed.root) return null;
+    const H = { mode: 'xml', kind: 'none', node: n, attr, fields: [], shown: new Set(), group: null, findings: [] };
+    if (d.model) {
+      const own = fieldsByNode(d).get(nid) || [];
+      let fs = attr ? own.filter(f => f.attr === attr) : [];
+      if (!fs.length) fs = own.slice().sort((a, b) => (a.attr ? 1 : 0) - (b.attr ? 1 : 0));
+      if (fs.length) H.kind = 'field';
+      else if (n.children.length) {
+        fs = d.model.fields.filter(f => f.node && f.node !== n && XP.isAncestorOrSelf(n, f.node));
+        H.group = ublGroup(n);
+        H.kind = fs.length === 1 && !H.group ? 'field' : fs.length ? 'group' : 'none';
+      }
+      H.fields = fs;
+      for (const f of fs) if (paperEls(f.id).length) H.shown.add(f.id);
+    }
+    H.findings = H.fields.flatMap(f => f.findings).concat(d.findings.filter(fd => fd.node === n));
+    return H;
+  }
+
+  function clearHover() {
+    clearTimeout(hov.cardT); clearTimeout(hov.scrollT);
+    if (!hov.key) return;
+    hov.els.forEach(el => el.classList.remove('hov', 'hov-g'));
+    hov.xmlLines.forEach(el => el.classList.remove('hov', 'hov-r'));
+    Object.assign(hov, { key: null, mode: null, H: null, lineEl: null, tipEl: null, xmlLines: [], els: [] });
+    $('#tip').hidden = true;
+    $('#links').innerHTML = '';
+  }
+
+  function xmlHover(e) {
     const d = cur();
-    if (!d || !d.model) return;
-    const f = d.model.fields[+el.dataset.f];
-    if (!f) return;
+    const T = d && xmlTarget(e.target);
+    if (!T) { clearHover(); return; }
+    const key = `x${T.nid}:${T.attr || ''}:${T.line.dataset.l}`;
+    if (key === hov.key) return;
+    clearHover();
+    const H = resolveNode(d, T.nid, T.attr);
+    if (!H) return;
+    Object.assign(hov, { key, mode: 'xml', H, lineEl: T.line });
+    if (H.kind === 'group') {
+      for (let l = H.node.line; l <= H.node.endLine; l++) {
+        const el = xmlView.byLine.get(l);
+        if (el) { el.classList.add('hov-r'); hov.xmlLines.push(el); }
+      }
+    }
+    T.line.classList.add('hov');
+    hov.xmlLines.push(T.line);
+    hov.els = H.fields.flatMap(f => paperEls(f.id));
+    hov.els.forEach(el => el.classList.add(H.kind === 'group' ? 'hov-g' : 'hov'));
+    drawLinks();
+    if (hov.els.length && wide.matches) hov.scrollT = setTimeout(revealPaper, 140);
+    hov.cardT = setTimeout(() => { if (hov.key === key) showCard(d, H, T.line); }, 220);
+  }
+
+  function paperHover(el) {
+    const d = cur();
+    const f = d && d.model && d.model.fields[+el.dataset.f];
+    if (!f || (hov.key === 'p' + f.id && hov.tipEl === el)) return;
+    clearHover();
+    Object.assign(hov, { key: 'p' + f.id, mode: 'paper', tipEl: el });
+    const link = state.tab === 'xml' && !!f.node && wide.matches;
+    if (link) {
+      const a = f.attr ? f.line : f.node.line;
+      const b = f.attr || f.node === d.parsed.root ? a : f.node.endLine;
+      for (let l = a; l <= b; l++) {
+        const x = l === a ? xmlLineEl(l) : xmlView.byLine.get(l);
+        if (x && !hov.xmlLines.includes(x)) { x.classList.add('hov'); hov.xmlLines.push(x); }
+      }
+      el.classList.add('hov');
+      hov.els = [el];
+      drawLinks();
+      hov.scrollT = setTimeout(revealXml, 140);
+    }
+    showCard(d, { mode: 'paper', kind: 'field', fields: [f], shown: new Set([f.id]), findings: f.findings }, el, link);
+  }
+
+  /** Karta: pri XML pod riadkom (ako v náhľade), pri vizuáli nad údajom tak, aby nezakryla XML. */
+  function showCard(d, H, anchor, link) {
     const tip = $('#tip');
-    tip.innerHTML = `<b>${U.esc(f.bt === 'TECH' ? 'technický' : f.bt)}</b> ${U.esc(f.label)}<br><code>${U.esc(f.xpath)}</code>${f.line ? ` <span class="muted">· riadok ${f.line}</span>` : ''}` +
-      (f.findings.length ? `<div class="tip-f s-${f.sev}">${U.esc(f.findings[0].text)}${f.findings.length > 1 ? ` (+${f.findings.length - 1})` : ''}</div>` : '');
+    const card = H.mode === 'xml';
+    tip.innerHTML = View.hoverCard(d, H);
+    tip.classList.toggle('card', card);
+    const br = $('#xml-body').getBoundingClientRect();
+    tip.style.maxWidth = card ? Math.max(260, Math.min(420, br.width - 72)) + 'px' : '';
     tip.hidden = false;
-    const r = el.getBoundingClientRect();
+    const r = anchor.getBoundingClientRect();
     const tw = tip.offsetWidth, th = tip.offsetHeight;
-    let x = Math.min(window.innerWidth - tw - 8, Math.max(8, r.left));
-    let y = r.bottom + 6;
-    if (y + th > window.innerHeight - 8) y = r.top - th - 6;
+    const above = r.top - th - 6, below = r.bottom + 6;
+    let x, y;
+    if (card) {
+      x = clamp(br.left + 64, 8, window.innerWidth - tw - 8);
+      y = below + th > window.innerHeight - 8 ? above : below;
+    } else {
+      x = Math.max(8, Math.min(r.left, (link ? br.left - 8 : window.innerWidth - 8) - tw));
+      y = link ? (above >= 8 ? above : below) : (below + th > window.innerHeight - 8 ? above : below);
+    }
     tip.style.left = x + 'px';
-    tip.style.top = y + 'px';
+    tip.style.top = Math.max(8, y) + 'px';
+  }
+
+  /** Obdĺžniky prvkov zlúčené do zhlukov – najprv podľa bloku vizuálu (riadok tabuľky, sekcia), potom podľa blízkosti. */
+  const BLOCK = 'tr, .party, .box, .inv-head > div, .inv-foot';
+  function clusters(els) {
+    const G = 22;
+    const byBlock = new Map();
+    for (const el of els) {
+      if (!el.isConnected) continue;
+      const r = el.getBoundingClientRect();
+      if (!(r.width > 0 && r.height > 0)) continue;
+      const blk = el.closest(BLOCK) || el;
+      const c = byBlock.get(blk);
+      if (c) Object.assign(c, { l: Math.min(c.l, r.left), t: Math.min(c.t, r.top), r: Math.max(c.r, r.right), b: Math.max(c.b, r.bottom), n: c.n + 1 });
+      else byBlock.set(blk, { l: r.left, t: r.top, r: r.right, b: r.bottom, n: 1 });
+    }
+    const cs = [...byBlock.values()];
+    for (let merged = true; merged;) {
+      merged = false;
+      for (let i = 0; i < cs.length && !merged; i++) {
+        for (let j = i + 1; j < cs.length; j++) {
+          const a = cs[i], b = cs[j];
+          if (a.l - G <= b.r && b.l - G <= a.r && a.t - G <= b.b && b.t - G <= a.b) {
+            cs[i] = { l: Math.min(a.l, b.l), t: Math.min(a.t, b.t), r: Math.max(a.r, b.r), b: Math.max(a.b, b.b), n: a.n + b.n };
+            cs.splice(j, 1);
+            merged = true;
+            break;
+          }
+        }
+      }
+    }
+    return cs.sort((a, b) => a.t - b.t);
+  }
+
+  function paperView() {
+    const left = $('#left');
+    const lb = left.getBoundingClientRect();
+    return { l: lb.left, r: lb.left + left.clientWidth, t: $('.left-bar', left).getBoundingClientRect().bottom, b: lb.top + left.clientHeight };
+  }
+
+  function drawLinks() {
+    const svg = $('#links');
+    const anchor = hov.mode === 'xml' ? hov.lineEl : hov.xmlLines[0];
+    if (!hov.key || !anchor || !anchor.isConnected || !hov.els.length || !wide.matches || state.tab !== 'xml') { svg.innerHTML = ''; return; }
+    const xb = $('#xml-body').getBoundingClientRect();
+    const ar = anchor.getBoundingClientRect();
+    const ax = xb.left + 3, ay = clamp(ar.top + ar.height / 2, xb.top + 4, xb.bottom - 4);
+    const V = paperView();
+    const group = hov.H && hov.H.kind === 'group';
+    let boxes = '', lines = '', dots = `<circle class="lk-dot" cx="${ax}" cy="${ay}" r="4"/>`;
+    for (const c of clusters(hov.els).slice(0, 4)) {
+      const inView = c.b > V.t && c.t < V.b;
+      if (inView && group) {
+        boxes += `<rect class="lk-box" x="${c.l - 5}" y="${c.t - 4}" width="${c.r - c.l + 10}" height="${c.b - c.t + 8}" rx="5"/>`;
+      }
+      const px = Math.min(c.r + (group ? 5 : 3), V.r - 3);
+      const py = clamp((c.t + c.b) / 2, V.t + 5, V.b - 5);
+      const k = Math.max(36, (ax - px) * 0.5);
+      const dPath = `M${px},${py} C${px + k},${py} ${ax - k},${ay} ${ax},${ay}`;
+      lines += `<path class="lk-halo" d="${dPath}"/><path class="lk-line" d="${dPath}"/>`;
+      dots += `<circle class="lk-dot" cx="${px}" cy="${py}" r="3.5"/>`;
+    }
+    svg.innerHTML = `<defs><clipPath id="lk-clip"><rect x="${V.l}" y="${V.t}" width="${V.r - V.l}" height="${Math.max(0, V.b - V.t)}"/></clipPath></defs>` +
+      `<g clip-path="url(#lk-clip)">${boxes}</g>${lines}${dots}`;
+  }
+
+  function scheduleDraw() {
+    if (!hov.raf) hov.raf = requestAnimationFrame(() => { hov.raf = 0; drawLinks(); });
+  }
+
+  /** Ak údaj nie je vo vizuáli viditeľný, posunie ho do zorného poľa. */
+  function revealPaper() {
+    if (hov.mode !== 'xml' || !hov.els.length) return;
+    const V = paperView();
+    const cs = clusters(hov.els);
+    if (!cs.length || cs.some(c => c.t >= V.t + 4 && c.b <= V.b - 4)) return;
+    const h = V.b - V.t, mid = V.t + h / 2;
+    const c = cs.reduce((p, q) => (Math.abs((q.t + q.b) / 2 - mid) < Math.abs((p.t + p.b) / 2 - mid) ? q : p));
+    const delta = c.b - c.t > h - 40 ? c.t - V.t - 16 : (c.t + c.b) / 2 - (V.t + h * 0.4);
+    $('#left').scrollBy({ top: delta, behavior: 'smooth' });
+  }
+
+  function revealXml() {
+    if (hov.mode !== 'paper' || !hov.xmlLines.length) return;
+    const body = $('#xml-body');
+    const br = body.getBoundingClientRect();
+    const r = hov.xmlLines[0].getBoundingClientRect();
+    const r2 = hov.xmlLines[hov.xmlLines.length - 1].getBoundingClientRect();
+    if (r.top >= br.top + 4 && r2.bottom <= br.bottom - 4) return;
+    body.scrollBy({ top: r.top - (br.top + br.height * 0.4), behavior: 'smooth' });
   }
 
   /* ---------- udalosti ---------- */
@@ -391,6 +612,7 @@ const App = (() => {
       renderAll();
     }));
     $$('.tab').forEach(t => t.addEventListener('click', () => {
+      clearHover();
       state.tab = t.dataset.tab;
       renderTabs();
       markSelection(true);
@@ -433,7 +655,9 @@ const App = (() => {
         select({ type: 'field', id: +fEl.dataset.f }, { tab: inPaper ? 'xml' : undefined });
         return;
       }
-      const nEl = t.closest('#xml-body [data-n], #map-body [data-n]');
+      const xt = xmlTarget(t);
+      if (xt) { selectNode(xt.nid, undefined, xt.attr); return; }
+      const nEl = t.closest('#map-body [data-n]');
       if (nEl) { selectNode(+nEl.dataset.n); return; }
       const lineEl = t.closest('#xml-body .xl');
       if (lineEl) { select({ type: 'line', line: +lineEl.dataset.l }); }
@@ -444,9 +668,21 @@ const App = (() => {
     });
 
     const paper = $('#paper');
-    paper.addEventListener('mouseover', e => { const el = e.target.closest('.f[data-f]'); if (el) showTip(el); });
-    paper.addEventListener('mouseout', e => { if (e.target.closest('.f[data-f]')) $('#tip').hidden = true; });
-    $('#left').addEventListener('scroll', () => { $('#tip').hidden = true; }, { passive: true });
+    paper.addEventListener('mouseover', e => { const el = e.target.closest('.f[data-f]'); if (el) paperHover(el); });
+    paper.addEventListener('mouseout', e => {
+      const el = e.target.closest('.f[data-f]');
+      if (el && !el.contains(e.relatedTarget) && hov.mode === 'paper') clearHover();
+    });
+    // pri prechode po XML sa vizuál posúva programovo – vtedy sa spojnica len prekreslí
+    $('#left').addEventListener('scroll', () => { if (hov.mode === 'paper') clearHover(); else if (hov.mode) scheduleDraw(); }, { passive: true });
+    const xmlBody = $('#xml-body');
+    xmlBody.addEventListener('mousemove', xmlHover);
+    xmlBody.addEventListener('mouseleave', () => { if (hov.mode === 'xml') clearHover(); });
+    xmlBody.addEventListener('scroll', () => {
+      if (hov.mode === 'xml') $('#tip').hidden = true;
+      if (hov.mode) scheduleDraw();
+    }, { passive: true });
+    window.addEventListener('resize', clearHover);
 
     // drag & drop
     let dragDepth = 0;
