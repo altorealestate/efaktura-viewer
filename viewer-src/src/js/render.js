@@ -4,7 +4,7 @@ const View = (() => {
   const esc = U.esc;
   const SEV_RANK = { fatal: 0, error: 1, warning: 2, info: 3 };
   const SEV_LABEL = { fatal: 'Chyba', error: 'Chyba', warning: 'Upozornenie', info: 'Info' };
-  const SRC_LABEL = { cen: 'EN 16931', peppol: 'Peppol BIS 3.0', sk: 'SK kontrola', xml: 'XML' };
+  const SRC_LABEL = { cen: 'EN 16931', peppol: 'Peppol BIS 3.0', sk: 'SK kontrola', xml: 'XML', xsd: 'Schéma UBL 2.1' };
   const TRANSFER = ['30', '31', '42', '58'];
   let opts = { showBT: false, showEmpty: false, fixMoj: false };
   const setOpts = o => { opts = o; };
@@ -73,8 +73,9 @@ const View = (() => {
   function partyHtml(title, P, kind) {
     if (!P) return '';
     const trade = has(P.trade) && P.trade.value !== P.name.value ? `<div class="p-trade">${fv(P.trade)}</div>` : (P.trade && P.trade.sev ? fv(P.trade) : '');
+    const easName = P.endpointScheme ? U.codeLabel('eas', P.endpointScheme.value) : '';
     const ep = has(P.endpoint)
-      ? `${fv(P.endpointScheme, { as: 'raw' })}<span class="sep">:</span>${fv(P.endpoint)}` + (P.endpointScheme && CODES.eas[P.endpointScheme.value] ? ` <span class="code">${esc(CODES.eas[P.endpointScheme.value])}</span>` : '')
+      ? `${fv(P.endpointScheme, { as: 'raw' })}<span class="sep">:</span>${fv(P.endpoint)}` + (easName ? ` <span class="code">${esc(easName)}</span>` : '')
       : fv(P.endpoint, { empty: true });
     const ids = [
       kv(SK.isSK(P) ? 'IČO' : 'Registračné číslo', fv(P.legalId, { empty: true }), has(P.legalIdScheme) ? `<span class="code">schéma ${fv(P.legalIdScheme)}</span>` : ''),
@@ -149,12 +150,15 @@ const View = (() => {
   function extraPartiesHtml(D) {
     const out = [];
     if (D.delivery.node && (D.delivery.name || D.delivery.addr || D.delivery.locId)) {
-      const body = [kv('Príjemca dodávky', fv(D.delivery.name)), kv('ID miesta', fv(D.delivery.locId))].join('') +
+      const body = [kv('Príjemca dodávky', fv(D.delivery.name)), kv('ID miesta', fv(D.delivery.locId), has(D.delivery.locScheme) ? `<span class="code">schéma ${fv(D.delivery.locScheme)}</span>` : '')].join('') +
         (D.delivery.addr && D.delivery.addr.node ? `<div class="p-addr">${addressHtml(D.delivery.addr)}</div>` : '');
       if (body.trim()) out.push(`<section class="box"><h4>Miesto dodania</h4>${body}</section>`);
     }
     if (D.payee) {
-      out.push(`<section class="box"><h4>Príjemca platby</h4>${kv('Názov', fv(D.payee.name, { empty: true }))}${D.payee.ids.map(f => kv(f.bt === 'BT-90' ? 'ID veriteľa SEPA' : 'Identifikátor', fv(f))).join('')}${kv('IČO', fv(D.payee.legalId))}</section>`);
+      const ls = D.payee.legalIdScheme;
+      out.push(`<section class="box"><h4>Príjemca platby</h4>${kv('Názov', fv(D.payee.name, { empty: true }))}` +
+        D.payee.ids.map(f => kv(f.bt === 'BT-90' ? 'ID veriteľa SEPA' : 'Identifikátor', fv(f), has(f.scheme) && f.bt !== 'BT-90' ? `<span class="code">schéma ${fv(f.scheme)}</span>` : '')).join('') +
+        kv(has(ls) && ls.value === '0158' ? 'IČO' : 'Registračné číslo', fv(D.payee.legalId), has(ls) ? `<span class="code">schéma ${fv(ls)}</span>` : '') + '</section>');
     }
     if (D.taxRep) {
       out.push(`<section class="box"><h4>Daňový zástupca</h4>${kv('Názov', fv(D.taxRep.name, { empty: true }))}${kv('IČ DPH', fv(D.taxRep.vat, { empty: true }))}<div class="p-addr">${addressHtml(D.taxRep.addr)}</div></section>`);
@@ -178,7 +182,7 @@ const View = (() => {
         mi('Obdobie', [fv(L.pStart), fv(L.pEnd)].filter(Boolean).join(' – ')),
         mi('Riadok objednávky', fv(L.orderLine)),
         mi('Účtovná ref.', fv(L.accCost)),
-        mi('Objekt', fv(L.object)),
+        mi('Objekt', fv(L.object) + (has(L.objectScheme) ? ` <span class="code">${fv(L.objectScheme)}</span>` : '')),
         ...L.props.map(p => mi(dispVal(p.name) || 'Atribút', fv(p.name, { as: 'raw' }) + ': ' + fv(p.value)))
       ].filter(Boolean).join('');
       const priceExtra = [
@@ -197,7 +201,7 @@ const View = (() => {
           ${acs}
         </td>
         <td class="num">${fv(L.qty, { empty: true })}</td>
-        <td>${fv(L.unit, { as: 'label', empty: true })}</td>
+        <td>${fv(L.unit, { empty: true })}</td>
         <td class="num">${fv(L.price, { empty: true })}${priceExtra ? `<div class="l-price">${priceExtra}</div>` : ''}</td>
         <td class="num">${fv(L.rate)} ${fv(L.cat, { as: 'raw' })}</td>
         <td class="num strong">${fv(L.net, { empty: true })}</td>
@@ -264,7 +268,7 @@ const View = (() => {
     const D = doc.model;
     if (!D) return `<div class="paper empty-paper"><p>Vizualizácia nie je k dispozícii.</p></div>`;
     const code = (D.typeCode.value || '').trim();
-    const title = CODES.docTitle[code] || (D.isCN ? 'DOBROPIS' : 'FAKTÚRA');
+    const title = U.codeLabel('docTitle', code) || (D.isCN ? 'DOBROPIS' : 'FAKTÚRA');
     const notes = D.notes.map(f => `<p>${fv(f)}</p>`).join('');
     const pay = D.payments[0];
     const tdd = doc.tdd;
@@ -353,7 +357,9 @@ const View = (() => {
       }
     }
     flush();
-    return lines.join('');
+    const out = [];
+    for (let i = 0; i < lines.length; i += 200) out.push('<div class="xc">' + lines.slice(i, i + 200).join('') + '</div>');
+    return out.join('');
   }
 
   /* ---------- karta pri prechode myšou (XML ↔ vizuál) ---------- */
@@ -447,9 +453,10 @@ const View = (() => {
     const list = doc.findings.map((f, i) => ({ f, i })).filter(({ f }) =>
       filter === 'all' || (filter === 'err' && (f.flag === 'fatal' || f.flag === 'error')) || f.flag === filter);
     if (!doc.findings.length) {
-      return doc.validation === 'running'
-        ? '<div class="empty-state small">Prebieha validácia…</div>'
-        : '<div class="empty-state ok">Žiadne nálezy – doklad vyhovuje všetkým kontrolám.</div>';
+      if (doc.validation === 'running' || doc.validation === 'pending') return '<div class="empty-state small">Prebieha validácia…</div>';
+      if (doc.validation === 'error') return `<div class="empty-state bad">Výsledok nie je známy – validáciu sa nepodarilo spustiť. ${esc(doc.validationError || '')}</div>`;
+      if (doc.validation === 'skipped') return `<div class="empty-state bad">Validácia sa nespustila. ${esc(doc.validationError || '')}</div>`;
+      return '<div class="empty-state ok">Žiadne nálezy – doklad vyhovuje všetkým kontrolám.</div>';
     }
     if (!list.length) return '<div class="empty-state small">Žiadne nálezy pre zvolený filter.</div>';
     return list.map(({ f, i }) => {
@@ -493,10 +500,15 @@ const View = (() => {
     if (!D || !D.attachments.length) return '<div class="empty-state small">Doklad nemá prílohy (BG-24).</div>';
     return D.attachments.map((A, i) => {
       const embedded = !!A.bin.raw;
+      const viewable = A.info && (A.info.isPdf || A.info.isPng || A.info.isJpg);   // podľa obsahu, nie podľa mimeCode z XML
+      const url = has(A.uri) ? U.safeUrl(A.uri.value) : null;
+      const link = has(A.uri) ? (url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(A.uri.value)}</a>` : `${esc(A.uri.value)} <span class="muted small">(nie je odkaz http/https)</span>`) : '';
       return `<div class="att-card" data-ai="${i}">
         <div class="att-h"><b>${esc(A.filename.value || A.id.value || 'príloha')}</b> ${has(A.mime) ? `<span class="code">${esc(A.mime.value)}</span>` : ''} ${A.info ? `<span class="muted small">${esc(U.fmtSize(A.info.size))}</span>` : ''}</div>
-        <div class="small">${kv('ID (BT-122)', fv(A.id))}${kv('Popis (BT-123)', fv(A.desc))}${kv('Externý odkaz (BT-124)', has(A.uri) ? `<a href="${esc(A.uri.value)}" target="_blank" rel="noopener">${esc(A.uri.value)}</a>` : '')}</div>
-        ${embedded ? `<div class="att-act"><button class="btn" data-att="preview" data-ai="${i}">Náhľad</button><button class="btn" data-att="open" data-ai="${i}">Otvoriť v novom okne</button><button class="btn" data-att="download" data-ai="${i}">Stiahnuť</button></div><div class="att-prev" id="att-prev-${i}"></div>` : ''}
+        <div class="small">${kv('ID (BT-122)', fv(A.id))}${kv('Popis (BT-123)', fv(A.desc))}${kv('Externý odkaz (BT-124)', link)}</div>
+        ${embedded ? `<div class="att-act">${viewable ? `<button class="btn" data-att="preview" data-ai="${i}">Náhľad</button><button class="btn" data-att="open" data-ai="${i}">Otvoriť v novom okne</button>` : ''}<button class="btn" data-att="download" data-ai="${i}">Stiahnuť</button></div>
+          ${viewable ? '' : '<div class="muted small">Náhľad je dostupný len pre PDF, PNG a JPEG (podľa obsahu súboru). Ostatné prílohy sa z bezpečnostných dôvodov dajú len stiahnuť.</div>'}
+          <div class="att-prev" id="att-prev-${i}"></div>` : ''}
       </div>`;
     }).join('');
   }
@@ -573,25 +585,38 @@ const View = (() => {
   }
   const cTxt = c => `${c.err} ${U.plural(c.err, 'chyba', 'chyby', 'chýb')} · ${c.warning} ${U.plural(c.warning, 'upozornenie', 'upozornenia', 'upozornení')}${c.info ? ` · ${c.info} info` : ''}`;
 
+  /** Pravidlá Peppol vychádzajú v máji a novembri – po ~7 mesiacoch od vydania upozorni na možnú novšiu verziu. */
+  function rulesAge() {
+    const m = /(\w+)\s+(\d{4})/.exec((RULES_META.peppol && RULES_META.peppol.release) || '');
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    if (!m || months.indexOf(m[1]) < 0) return '';
+    const rel = new Date(+m[2], months.indexOf(m[1]), 1);
+    return (Date.now() - rel) / 864e5 > 215 ? ' · pravidlá môžu byť zastarané – overte novú verziu na docs.peppol.eu' : '';
+  }
+
   function renderStatus(doc) {
-    const off = doc.findings.filter(f => f.source === 'cen' || f.source === 'peppol');
+    const off = doc.findings.filter(f => f.source === 'cen' || f.source === 'peppol' || f.source === 'xsd');
     const sk = doc.findings.filter(f => f.source === 'sk');
     const co = counts(off), cs = counts(sk);
-    const xmlBad = doc.findings.some(f => f.source === 'xml' && f.flag === 'fatal');
+    const cx = counts(doc.findings.filter(f => f.source === 'xsd'));
+    const xmlBad = doc.findings.filter(f => f.source === 'xml' && (f.flag === 'fatal' || f.flag === 'error'));
+    const notWF = doc.findings.some(f => f.id === 'XML-01');
+    const running = doc.validation === 'running' || doc.validation === 'pending';
+    const nLines = doc.model ? doc.model.lines.length : 0;
     let offCls, offTxt;
-    if (doc.validation === 'running' || doc.validation === 'pending') { offCls = 'run'; offTxt = 'Prebieha validácia…'; }
+    if (running) { offCls = 'run'; offTxt = 'Prebieha validácia' + (doc.valStep ? ` (${esc(doc.valStep)})` : '') + '…'; }
     else if (doc.validation === 'error') { offCls = 'bad'; offTxt = 'Validáciu sa nepodarilo spustiť'; }
     else if (doc.validation === 'skipped') { offCls = 'bad'; offTxt = 'Nevalidované'; }
-    else if (co.err) { offCls = 'bad'; offTxt = 'NEVYHOVUJE'; }
-    else if (xmlBad) { offCls = 'bad'; offTxt = 'NEVYHOVUJE – poškodené XML'; }
+    else if (co.err || xmlBad.length) { offCls = 'bad'; offTxt = 'NEVYHOVUJE'; }
     else { offCls = 'ok'; offTxt = co.warning ? 'VYHOVUJE (s upozorneniami)' : 'VYHOVUJE'; }
     const offSub = doc.validation === 'done'
-      ? (xmlBad ? 'Pravidlá na opravenej kópii: ' : '') + cTxt(co) + ` · ${esc(RULES_META.label)}`
-      : esc(doc.validationError || (doc.validation === 'skipped' ? 'XML nie je možné spracovať' : ''));
+      ? (doc.repaired ? 'Kontroly na opravenej kópii: ' : '') + cTxt(co) + ` · schéma UBL 2.1${cx.err ? ` (${cx.err} ${U.plural(cx.err, 'chyba', 'chyby', 'chýb')})` : ' v poriadku'} · ${esc(RULES_META.label)}${rulesAge()}`
+      : running && nLines > 300 ? `Faktúra má ${nLines} riadkov – validácia môže trvať aj desiatky sekúnd a stránka počas nej nereaguje.`
+        : esc(doc.validationError || (doc.validation === 'skipped' ? 'XML nie je možné spracovať' : ''));
     const skCls = cs.err ? 'bad' : cs.warning ? 'warn' : 'ok';
     const D = doc.model;
     const meta = D ? [
-      esc(U.codeLabel('doc', D.typeCode.value) || D.typeCode.value || ''),
+      esc(U.codeLabel('doc', D.typeCode.value) || (D.typeCode.value || '').trim()),
       D.number.value ? 'č. ' + esc(D.number.value) : '',
       D.totals.payable.value ? esc(U.fmtAmount(D.totals.payable.value, D.totals.payable.cur)) : '',
       D.seller.name.value ? esc(D.seller.name.value) + ' → ' + esc(D.buyer.name.value || '?') : ''
@@ -600,7 +625,7 @@ const View = (() => {
         <div class="st-s">${offSub}</div></div></div>
       <div class="st-row ${skCls}"><span class="st-dot"></span><div><div class="st-t">SK kontroly (FS SR / PASR): <b>${cs.err ? 'nájdené chyby' : cs.warning ? 'upozornenia' : 'bez problémov'}</b></div>
         <div class="st-s">${cTxt(cs)}</div></div></div>
-      ${xmlBad ? `<div class="st-row bad"><span class="st-dot"></span><div><div class="st-t"><b>XML súbor je poškodený</b>${doc.repaired ? ' – zobrazený je opravený náhľad' : ''}</div><div class="st-s">Takýto súbor by prístupový bod Peppol odmietol.</div></div></div>` : ''}
+      ${xmlBad.length ? `<div class="st-row bad"><span class="st-dot"></span><div><div class="st-t"><b>${notWF ? 'XML súbor je poškodený' : 'Chyba XML súboru'}</b>${doc.repaired ? ' – zobrazený je opravený náhľad' : ''}</div><div class="st-s">${notWF ? 'Takýto súbor by prístupový bod Peppol odmietol.' : esc(xmlBad[0].text.length > 140 ? xmlBad[0].text.slice(0, 137) + '…' : xmlBad[0].text)}</div></div></div>` : ''}
       ${meta ? `<div class="st-meta">${meta}</div>` : ''}`;
   }
 

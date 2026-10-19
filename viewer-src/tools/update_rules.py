@@ -49,6 +49,38 @@ process.exit(bad ? 1 : 0);
 """
 
 
+# Výkonnostné úpravy oficiálnych pravidiel (rovnaký význam, iná rýchlosť v SaxonJS).
+# Kontexty švédskych pravidiel SE-R-003…005 obsahujú v predikáte „//cac:AccountingSupplierParty“, ktorý SaxonJS
+# vyhodnocuje pre každý TaxCategory/ClassifiedTaxCategory nanovo prechodom celého dokumentu (O(n²) – faktúra
+# s 2000 riadkami sa validovala vyše minúty). AccountingSupplierParty/CustomerParty sú podľa XSD UBL 2.1 len
+# priamymi potomkami koreňa, preto je „/*/cac:…“ rovnocenné. Úprava sa robí len v atribúte context pravidiel.
+OPTIMIZE = {
+    'PEPPOL-EN16931-UBL': [('[//cac:AccountingSupplierParty/', '[/*/cac:AccountingSupplierParty/'),
+                           (' and //cac:AccountingCustomerParty/', ' and /*/cac:AccountingCustomerParty/')],
+}
+
+
+def optimize(name, text):
+    subs = OPTIMIZE.get(name, [])
+    total = 0
+
+    def fix_context(m):
+        nonlocal total
+        ctx = m.group(1)
+        for a, b in subs:
+            total += ctx.count(a)
+            ctx = ctx.replace(a, b)
+        return 'context="' + ctx + '"'
+    out = re.sub(r'context="([^"]*)"', fix_context, text)
+    if subs:
+        log(f'{name}: výkonnostná úprava kontextov ({total} miest)')
+    return out
+
+
+def count_asserts(text):
+    return len(re.findall(r'<assert\b', re.sub(r'<!--.*?-->', '', text, flags=re.S)))
+
+
 def log(msg):
     print('»', msg, flush=True)
 
@@ -105,6 +137,7 @@ def ensure_tools(node, npm):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--mandatory', help='dátum, od ktorého je verzia Peppol povinná (RRRR-MM-DD), len informatívne')
+    ap.add_argument('--local', action='store_true', help='nesťahovať pravidlá, skompilovať existujúce rules/*.sch')
     args = ap.parse_args()
     CACHE.mkdir(parents=True, exist_ok=True)
     node, npm = ensure_node()
@@ -115,16 +148,17 @@ def main():
 
     meta = {}
     for key, name in (('cen', 'CEN-EN16931-UBL'), ('peppol', 'PEPPOL-EN16931-UBL')):
-        sch = fetch(DOCS + name + '.sch')
-        (tmp / (name + '.sch')).write_bytes(sch)
+        sch = (RULES / (name + '.sch')).read_bytes() if args.local else fetch(DOCS + name + '.sch')
+        (tmp / (name + '.orig.sch')).write_bytes(sch)
         text = sch.decode('utf-8')
+        (tmp / (name + '.sch')).write_text(optimize(name, text), encoding='utf-8', newline='\n')
         if key == 'cen':
             m = re.search(r'Schematron version (\d+(?:\.\d+)+)\s*-\s*Last update:\s*(\d{4}-\d{2}-\d{2})', text)
             meta['cen'] = {'version': m.group(1) if m else '?', 'date': m.group(2) if m else '?'}
         else:
             m = re.search(r'Last update:\s*(\d{4})\s+(\w+)\s+release\s+(\d+(?:\.\d+)+)', text)
             meta['peppol'] = {'version': m.group(3) if m else '?', 'release': f'{m.group(2)} {m.group(1)}' if m else '?'}
-        meta[key]['asserts'] = len(re.findall(r'<assert\b', text))
+        meta[key]['asserts'] = count_asserts(text)
         log(f'kompilujem {name} ({meta[key]["asserts"]} pravidiel)')
         subprocess.run(xslt3 + [f'-xsl:{pipeline}', f'-s:{tmp / (name + ".sch")}', f'-o:{tmp / (name + ".xsl")}'], check=True)
         subprocess.run(xslt3 + [f'-xsl:{tmp / (name + ".xsl")}', f'-export:{tmp / (key + ".sef.json")}', '-nogo', '-relocate:on'], check=True)
@@ -142,7 +176,8 @@ def main():
     for key, name in (('cen', 'CEN'), ('peppol', 'PEPPOL')):
         with gzip.open(RULES / f'{name}.sef.json.gz', 'wb', compresslevel=9) as g:
             g.write((tmp / f'{key}.sef.json').read_bytes())
-        shutil.copy(tmp / (('CEN' if key == 'cen' else 'PEPPOL') + '-EN16931-UBL.sch'), RULES)
+        nm = ('CEN' if key == 'cen' else 'PEPPOL') + '-EN16931-UBL'
+        shutil.copy(tmp / (nm + '.orig.sch'), RULES / (nm + '.sch'))      # v rules/ ostáva oficiálne znenie
     c, p = meta['cen'], meta['peppol']
     if args.mandatory:
         p['mandatory'] = args.mandatory

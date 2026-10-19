@@ -42,15 +42,46 @@ const XP = (() => {
     return c > 0 ? [name.slice(0, c), name.slice(c + 1)] : ['', name];
   }
 
+  /** Atribúty počiatočnej značky – lineárny prechod (regex so spätným navracaním bol pri dlhých tokenoch O(n²)). */
+  const WS = c => c === ' ' || c === '\t' || c === '\n' || c === '\r';
+  function scanAttrs(inner, from, base) {
+    const out = [];
+    const L = inner.length;
+    let p = from;
+    while (p < L) {
+      while (p < L && WS(inner[p])) p++;
+      const ns = p;
+      while (p < L && !WS(inner[p]) && inner[p] !== '=') p++;
+      if (p === ns) { p++; continue; }
+      const name = inner.slice(ns, p);
+      let q = p;
+      while (q < L && WS(inner[q])) q++;
+      if (inner[q] !== '=') continue;
+      q++;
+      while (q < L && WS(inner[q])) q++;
+      const quote = inner[q];
+      if (quote !== '"' && quote !== "'") { p = q; continue; }
+      const end = inner.indexOf(quote, q + 1);
+      if (end < 0) break;
+      out.push({ name, raw: inner.slice(q + 1, end), s: base + ns, e: base + end + 1 });
+      p = end + 1;
+    }
+    return out;
+  }
+
+  const MAX_DEPTH = 256;
+
   function parse(text) {
     const nodes = [];
     const tokens = [];
     const issues = [];
-    const docNode = { nid: -1, name: '#document', children: [], nsMap: { xml: NS_XML, '': '' } };
+    const rootNs = Object.assign(Object.create(null), { xml: NS_XML, '': '' });
+    const docNode = { nid: -1, name: '#document', children: [], nsMap: rootNs };
     const stack = [docNode];
+    const openByName = new Map();                 // názov → počet otvorených elementov (rýchla kontrola koncovej značky)
     const n = text.length;
     const top = () => stack[stack.length - 1];
-    let i = 0;
+    let i = 0, doctype = null, tooDeep = false;
 
     while (i < n) {
       const lt = text.indexOf('<', i);
@@ -87,9 +118,24 @@ const XP = (() => {
         continue;
       }
       if (text.startsWith('<!', i)) {
-        let e = text.indexOf('>', i);
-        e = e < 0 ? n : e + 1;
+        // <!DOCTYPE …> vrátane vnútornej podmnožiny [ … ] (môže obsahovať '>' v deklaráciách ENTITY)
+        let e = i + 2, q = null, br = 0;
+        for (; e < n; e++) {
+          const c = text[e];
+          if (!q && br > 0 && c === '<' && text.startsWith('<!--', e)) {   // komentár v DTD (môže obsahovať ', ", ], >)
+            const ce = text.indexOf('-->', e + 4);
+            e = ce < 0 ? n : ce + 2;
+            continue;
+          }
+          if (q) { if (c === q) q = null; }
+          else if (c === '"' || c === "'") q = c;
+          else if (c === '[') br++;
+          else if (c === ']') br--;
+          else if (c === '>' && br <= 0) break;
+        }
+        e = e < n ? e + 1 : n;
         tokens.push({ t: 'doctype', s: i, e, nid: -1 });
+        if (/^<!DOCTYPE/i.test(text.slice(i, i + 9)) && !doctype) doctype = { off: i, internal: text.slice(i, e).includes('['), text: text.slice(i, e) };
         i = e;
         continue;
       }
@@ -101,8 +147,10 @@ const XP = (() => {
         const name = text.slice(i + 2, closed ? gt : e).trim();
         if (!closed) issues.push({ off: i, msg: `Neukončená koncová značka </${name}` });
         let k = stack.length - 1;
-        while (k > 0 && stack[k].name !== name) k--;
+        if (!openByName.get(name)) k = 0;
+        else while (k > 0 && stack[k].name !== name) k--;
         if (k > 0) {
+          for (let j = stack.length - 1; j >= k; j--) openByName.set(stack[j].name, openByName.get(stack[j].name) - 1);
           for (let j = stack.length - 1; j > k; j--) {
             const el = stack[j];
             el.closeStart = i; el.end = i; el.unclosed = true;
@@ -135,38 +183,43 @@ const XP = (() => {
       if (inner.endsWith('/')) { selfClose = true; inner = inner.slice(0, -1); }
       const nm = /^[^\s/>]+/.exec(inner);
       const name = nm ? nm[0] : '';
-      const attrs = [];
-      const re = /([^\s=]+)\s*=\s*("([^"]*)"|'([^']*)')/g;
-      re.lastIndex = name.length;
-      let a;
-      while ((a = re.exec(inner))) {
-        const [prefix, local] = splitName(a[1]);
-        attrs.push({
-          name: a[1], prefix, local,
-          value: decodeEntities(a[3] !== undefined ? a[3] : a[4]),
-          s: i + 1 + a.index, e: i + 1 + a.index + a[0].length
-        });
-      }
+      const attrs = scanAttrs(inner, name.length, i + 1).map(a => {
+        const [prefix, local] = splitName(a.name);
+        return { name: a.name, prefix, local, value: decodeEntities(a.raw), s: a.s, e: a.e };
+      });
       const parent = top();
-      const nsMap = Object.create(parent.nsMap);
+      // mapa prefixov sa kopíruje len pri deklarácii xmlns (inak zdieľaná) – vyhľadanie je O(1) aj pri hlbokom vnorení
+      let nsMap = parent.nsMap;
       for (const at of attrs) {
-        if (at.name === 'xmlns') nsMap[''] = at.value;
-        else if (at.prefix === 'xmlns') nsMap[at.local] = at.value;
+        if (at.name !== 'xmlns' && at.prefix !== 'xmlns') continue;
+        if (nsMap === parent.nsMap) nsMap = Object.assign(Object.create(null), parent.nsMap);
+        nsMap[at.name === 'xmlns' ? '' : at.local] = at.value;
       }
       const [prefix, local] = splitName(name);
       const el = {
         nid: nodes.length, name, prefix, local, ns: nsMap[prefix] || '',
-        attrs, attrMap: {}, parent: parent === docNode ? null : parent,
+        attrs, attrMap: Object.create(null), parent: parent === docNode ? null : parent,
         children: [], textParts: [], start: i, openEnd: e, closeStart: -1, end: -1,
         nsMap, selfClose
       };
-      for (const at of attrs) if (at.prefix !== 'xmlns' && at.name !== 'xmlns') el.attrMap[at.local] = at.value;
+      // atribúty UBL sú bez prefixu; atribút s prefixom (napr. x:schemeID) sa nesmie tváriť ako @schemeID
+      for (const at of attrs) if (at.prefix !== 'xmlns' && at.name !== 'xmlns') el.attrMap[at.prefix ? at.name : at.local] = at.value;
       nodes.push(el);
       parent.children.push(el);
       if (parent === docNode && docNode.children.length > 1) issues.push({ off: i, msg: 'Dokument obsahuje viac ako jeden koreňový element' });
       if (!closedTag) issues.push({ off: i, msg: `Neukončená značka <${name}` });
       tokens.push({ t: selfClose ? 'empty' : 'open', s: i, e, nid: el.nid });
-      if (selfClose) { el.closeStart = e; el.end = e; } else stack.push(el);
+      if (selfClose) { el.closeStart = e; el.end = e; }
+      else {
+        stack.push(el);
+        openByName.set(name, (openByName.get(name) || 0) + 1);
+        if (stack.length > MAX_DEPTH + 1) {
+          tooDeep = true;
+          issues.push({ off: i, msg: `Vnorenie elementov je hlbšie ako ${MAX_DEPTH} úrovní` });
+          if (e < n) tokens.push({ t: 'text', s: e, e: n, nid: -1 });
+          break;
+        }
+      }
       i = e;
     }
     const unclosed = [];
@@ -184,7 +237,7 @@ const XP = (() => {
       el.endLine = lineOf(starts, Math.max(el.start, el.end - 1));
     }
     return {
-      text, nodes, tokens, issues, unclosed,
+      text, nodes, tokens, issues, unclosed, doctype, tooDeep,
       root: docNode.children[0] || null,
       lineStarts: starts,
       lineOf: off => lineOf(starts, off)

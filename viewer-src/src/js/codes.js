@@ -10,36 +10,43 @@ const NS = {
 };
 const NS_PREFIX = Object.fromEntries(Object.entries(NS).map(([k, v]) => [v, k]));
 
+/** Bezpečné vyhľadanie v číselníku – kód „constructor“ či „__proto__“ z XML nesmie vrátiť člen Object.prototype. */
+const own = (o, k) => (o != null && k != null && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined);
+
 const CODES = {
-  // UNTDID 1001 – typ dokladu
+  // UNTDID 1001 (D.16B) – typ dokladu; podmnožiny Peppol: UNCL1001-inv, UNCL1001-cn
   doc: {
-    '71': 'Žiadosť o platbu', '80': 'Ťarchopis (služby)', '81': 'Dobropis (služby)', '82': 'Faktúra za merané služby',
-    '84': 'Ťarchopis (finančné úpravy)', '102': 'Výkaz o vykonaných prácach', '130': 'Faktúračné údaje',
-    '202': 'Priame platobné ocenenie', '203': 'Overené platobné ocenenie', '204': 'Predbežné platobné ocenenie',
-    '211': 'Priebežná faktúra (stavebníctvo)', '218': 'Konečná platba', '219': 'Čiastková platba', '261': 'Samofakturačný dobropis',
-    '262': 'Súhrnný dobropis', '295': 'Faktúra za cenové rozdiely', '296': 'Dobropis za cenové rozdiely',
-    '308': 'Delcredere dobropis', '325': 'Zálohová faktúra (proforma)', '326': 'Čiastková faktúra', '331': 'Obchodná faktúra (obchodná transakcia)',
-    '380': 'Faktúra', '381': 'Dobropis', '382': 'Provízny list', '383': 'Ťarchopis', '384': 'Opravná faktúra',
-    '385': 'Konsolidovaná faktúra', '386': 'Zálohová faktúra', '387': 'Nájomná faktúra', '388': 'Daňová faktúra (daňový doklad)',
-    '389': 'Samofakturácia', '390': 'Delcredere faktúra', '393': 'Faktoringová faktúra', '394': 'Leasingová faktúra',
-    '395': 'Konsignačná faktúra', '396': 'Faktoringový dobropis', '420': 'Optická faktúra', '456': 'Opravný ťarchopis',
-    '457': 'Storno ťarchopisu', '527': 'Samofakturačný ťarchopis', '532': 'Dobropis od prepravcu', '575': 'Poisťovacia faktúra',
-    '623': 'Faktúra špeditéra', '633': 'Prístavná faktúra', '751': 'Faktúra – informácia pre účtovanie',
-    '780': 'Faktúra za prepravu', '817': 'Reklamačná faktúra', '870': 'Konzulárna faktúra', '875': 'Čiastková faktúra (stavebníctvo)',
-    '876': 'Čiastková konečná faktúra (stavebníctvo)', '877': 'Konečná faktúra (stavebníctvo)', '935': 'Colná faktúra'
+    '71': 'Žiadosť o platbu', '80': 'Ťarchopis k tovaru alebo službám', '81': 'Dobropis k tovaru alebo službám',
+    '82': 'Faktúra za merané služby', '83': 'Dobropis (finančné úpravy)', '84': 'Ťarchopis (finančné úpravy)',
+    '102': 'Daňové oznámenie', '130': 'Hárok fakturačných údajov',
+    '202': 'Priame ocenenie platby', '203': 'Predbežné ocenenie platby', '204': 'Ocenenie platby',
+    '211': 'Priebežná žiadosť o platbu', '218': 'Žiadosť o konečnú platbu po dokončení prác', '219': 'Žiadosť o platbu za dokončené jednotky',
+    '261': 'Samofakturačný dobropis', '262': 'Súhrnný dobropis (tovar a služby)', '295': 'Faktúra za cenové rozdiely',
+    '296': 'Dobropis za cenové rozdiely', '308': 'Delcredere dobropis', '325': 'Predbežná faktúra (proforma)', '326': 'Čiastková faktúra',
+    '331': 'Obchodná faktúra s baliacim listom', '380': 'Faktúra', '381': 'Dobropis', '382': 'Provízny list', '383': 'Ťarchopis',
+    '384': 'Opravná faktúra', '385': 'Súhrnná faktúra', '386': 'Zálohová faktúra', '387': 'Faktúra za prenájom',
+    '388': 'Daňová faktúra (daňový doklad)', '389': 'Samofakturácia', '390': 'Delcredere faktúra', '393': 'Faktoringová faktúra',
+    '394': 'Leasingová faktúra', '395': 'Konsignačná faktúra', '396': 'Faktoringový dobropis', '420': 'Dobropis s platbou OCR',
+    '456': 'Debetné avízo', '457': 'Storno debetu', '458': 'Storno kreditu', '527': 'Samofakturačný ťarchopis',
+    '532': 'Dobropis špeditéra', '553': 'Správa špeditéra o nezrovnalostiach vo faktúre', '575': 'Faktúra poisťovateľa',
+    '623': 'Faktúra špeditéra', '633': 'Doklad o prístavných poplatkoch', '751': 'Faktúra – informácia pre účtovanie',
+    '780': 'Faktúra za prepravu', '817': 'Oznámenie o nároku (reklamácii)', '870': 'Konzulárna faktúra',
+    '875': 'Čiastková faktúra (stavebníctvo)', '876': 'Čiastková konečná faktúra (stavebníctvo)', '877': 'Konečná faktúra (stavebníctvo)',
+    '935': 'Colná faktúra'
   },
   docTitle: {
     '380': 'FAKTÚRA', '381': 'DOBROPIS', '383': 'ŤARCHOPIS', '384': 'OPRAVNÁ FAKTÚRA', '386': 'ZÁLOHOVÁ FAKTÚRA',
     '388': 'DAŇOVÝ DOKLAD', '389': 'SAMOFAKTURÁCIA', '261': 'SAMOFAKTURAČNÝ DOBROPIS', '326': 'ČIASTKOVÁ FAKTÚRA',
     '393': 'FAKTORINGOVÁ FAKTÚRA', '395': 'KONSIGNAČNÁ FAKTÚRA', '396': 'FAKTORINGOVÝ DOBROPIS', '82': 'FAKTÚRA ZA MERANÉ SLUŽBY',
-    '80': 'ŤARCHOPIS', '81': 'DOBROPIS', '875': 'ČIASTKOVÁ FAKTÚRA', '876': 'ČIASTKOVÁ KONEČNÁ FAKTÚRA', '877': 'KONEČNÁ FAKTÚRA'
+    '80': 'ŤARCHOPIS', '81': 'DOBROPIS', '83': 'DOBROPIS', '84': 'ŤARCHOPIS', '875': 'ČIASTKOVÁ FAKTÚRA',
+    '876': 'ČIASTKOVÁ KONEČNÁ FAKTÚRA', '877': 'KONEČNÁ FAKTÚRA'
   },
   // UNTDID 4461 – spôsob platby
   pay: {
     '1': 'Nešpecifikované', '10': 'Hotovosť', '20': 'Šek', '30': 'Bankový prevod (kreditný)', '31': 'Debetný prevod',
     '42': 'Platba na bankový účet', '48': 'Platobná karta', '49': 'Inkaso', '54': 'Kreditná karta', '55': 'Debetná karta',
-    '57': 'Trvalý príkaz', '58': 'SEPA prevod', '59': 'SEPA inkaso', '68': 'Online platobná služba', '97': 'Zápočet medzi partnermi',
-    'ZZZ': 'Iný (dohodnutý) spôsob'
+    '57': 'Trvalá dohoda (standing agreement)', '58': 'SEPA prevod', '59': 'SEPA inkaso', '68': 'Online platobná služba',
+    '97': 'Zápočet medzi partnermi', 'ZZZ': 'Iný (dohodnutý) spôsob'
   },
   // UNTDID 5305 – kategória DPH
   vat: {
@@ -49,17 +56,19 @@ const CODES = {
   },
   // UNTDID 2005 – kód dátumu DUZP
   taxPoint: { '3': 'Dátum vystavenia faktúry', '35': 'Skutočný dátum dodania', '432': 'Dátum úhrady' },
-  // UN/ECE Rec 20 – najčastejšie merné jednotky
+  // UN/ECE Rec 20 a 21 (Peppol UNECERec20, rev. 11e) – najčastejšie merné jednotky
   unit: {
-    'H87': 'ks', 'C62': 'ks (jednotka)', 'EA': 'ks (každý)', 'XPP': 'ks (balík)', 'PCE': 'ks', 'SET': 'súprava', 'PR': 'pár',
-    'XPK': 'balenie', 'PK': 'balenie', 'XBX': 'krabica', 'XPX': 'paleta', 'NAR': 'počet položiek', 'LS': 'paušál',
+    'H87': 'ks', 'C62': 'ks (jednotka)', 'EA': 'ks (každý)', 'XPP': 'ks (voľný kus)', 'SET': 'súprava', 'PR': 'pár', 'DZN': 'tucet',
+    'XPK': 'balenie', 'XPA': 'balíček', 'XBX': 'krabica', 'XCT': 'kartón', 'XPX': 'paleta', 'XBG': 'vrecko', 'XSA': 'vrece',
+    'XRO': 'rolka', 'XBO': 'fľaša', 'NAR': 'počet položiek', 'NMP': 'počet balení', 'LS': 'paušál',
     'E48': 'služba', 'ZZ': 'vzájomne dohodnutá', 'ACT': 'činnosť', 'E49': 'pracovný deň',
     'SEC': 's', 'MIN': 'min', 'HUR': 'hod.', 'DAY': 'deň', 'WEE': 'týždeň', 'MON': 'mesiac', 'QAN': 'štvrťrok', 'ANN': 'rok',
     'GRM': 'g', 'KGM': 'kg', 'TNE': 't', 'MGM': 'mg',
-    'MMT': 'mm', 'CMT': 'cm', 'MTR': 'm', 'KMT': 'km', 'MTK': 'm²', 'MTQ': 'm³', 'HAR': 'ha', 'CMK': 'cm²',
+    'MMT': 'mm', 'CMT': 'cm', 'MTR': 'm', 'KMT': 'km', 'MTK': 'm²', 'MTQ': 'm³', 'CMK': 'cm²', 'MQH': 'm³/h',
     'MLT': 'ml', 'LTR': 'l', 'DLT': 'dl', 'HLT': 'hl',
-    'KWH': 'kWh', 'MWH': 'MWh', 'GWH': 'GWh', 'KWT': 'kW', 'WTT': 'W', 'KVA': 'kVA', 'GJ': 'GJ', 'MJ': 'MJ',
-    'TKM': 'tkm', 'P1': '%', 'A9': 'sadzba', 'IE': 'osoba', 'NMP': 'počet balení', 'D64': 'blok', 'B16': 'tucet'
+    'KWH': 'kWh', 'MWH': 'MWh', 'GWH': 'GWh', 'D32': 'TWh', 'KWT': 'kW', 'MAW': 'MW', 'WTT': 'W', 'KVA': 'kVA',
+    'GV': 'GJ', '3B': 'MJ', 'GJ': 'g/ml',
+    'TKM': 'tkm', 'P1': '%', 'A9': 'sadzba', 'IE': 'osoba'
   },
   eas: {
     '0245': 'SK DIČ', '9950': 'SK IČ DPH', '0158': 'SK IČO', '0088': 'GLN (GS1)', '0060': 'DUNS',
@@ -86,9 +95,10 @@ const BT_CODELIST = {
   'BT-40': 'ISO3166', 'BT-55': 'ISO3166', 'BT-69': 'ISO3166', 'BT-80': 'ISO3166', 'BT-159': 'ISO3166',
   'BT-95': 'UNCL5305', 'BT-102': 'UNCL5305', 'BT-118': 'UNCL5305', 'BT-151': 'UNCL5305',
   'BT-98': 'UNCL5189', 'BT-140': 'UNCL5189', 'BT-105': 'UNCL7161', 'BT-145': 'UNCL7161',
-  'BT-130': 'UNECERec20', 'BT-150': 'UNECERec20', 'BT-158': 'UNCL7143', 'BT-18-1': 'UNCL1153',
+  'BT-130': 'UNECERec20', 'BT-150': 'UNECERec20', 'BT-18-1': 'UNCL1153', 'BT-128-1': 'UNCL1153',
   'BT-34-1': 'eas', 'BT-49-1': 'eas', 'BT-90-1': 'SEPA',
-  'BT-29-1': 'ICD', 'BT-30-1': 'ICD', 'BT-46-1': 'ICD', 'BT-47-1': 'ICD', 'BT-157-1': 'ICD'
+  'BT-29-1': 'ICD', 'BT-30-1': 'ICD', 'BT-46-1': 'ICD', 'BT-47-1': 'ICD', 'BT-157-1': 'ICD',
+  'BT-60-1': 'ICD', 'BT-61-1': 'ICD', 'BT-71-1': 'ICD'
 };
 
 /* Agregáty UBL → skupina obchodných termínov (BG) podľa EN 16931; časť závisí od nadradeného elementu. */
@@ -114,7 +124,11 @@ function ublGroup(n) {
     case 'AllowanceCharge': return !n.parent || !n.parent.parent ? (charge() ? 'BG-21' : 'BG-20') : isLine(P) ? (charge() ? 'BG-28' : 'BG-27') : null;
     case 'LegalMonetaryTotal': return 'BG-22';
     case 'TaxSubtotal': return 'BG-23';
-    case 'AdditionalDocumentReference': return 'BG-24';
+    case 'AdditionalDocumentReference': {
+      // s kódom 130 ide o fakturovaný objekt (BT-18), v dobropise s kódom 50 o projekt (BT-11) – nie o prílohu
+      const c = ((n.children.find(x => x.local === 'DocumentTypeCode') || {}).text || '').trim();
+      return c === '130' || (c === '50' && PP === '' && n.parent && n.parent.local === 'CreditNote') ? null : 'BG-24';
+    }
     case 'InvoiceLine': case 'CreditNoteLine': return 'BG-25';
     case 'Price': return 'BG-29';
     case 'ClassifiedTaxCategory': return 'BG-30';
@@ -125,39 +139,53 @@ function ublGroup(n) {
   }
 }
 
-/* Kód banky v slovenskom IBAN (pozície 5–8) → BIC. Orientačný zoznam podľa číselníka NBS. */
+/*
+ * Kód banky v slovenskom IBAN (pozície 5–8) → BIC. Podľa NBS „Číselník identifikačných kódov platobného systému SR“,
+ * verzia 226 platná od 8. 10. 2026 (https://nbs.sk – CSV AP0001). null = poskytovateľ bez BIC.
+ */
+const SK_BANKS_VER = 'NBS, verzia 226 (8. 10. 2026)';
 const SK_BANKS = {
   '0200': ['SUBASKBX', 'Všeobecná úverová banka'],
   '0720': ['NBSBSKBX', 'Národná banka Slovenska'],
   '0900': ['GIBASKBX', 'Slovenská sporiteľňa'],
   '1100': ['TATRSKBX', 'Tatra banka'],
-  '1111': ['UNCRSKBX', 'UniCredit Bank Czech Republic and Slovakia'],
+  '1111': ['UNCRSKBX', 'UniCredit Bank Czech Republic and Slovakia, pobočka'],
   '3000': ['SLZBSKBA', 'Slovenská záručná a rozvojová banka'],
-  '3100': ['LUBASKBX', 'Prima banka Slovensko (býv. Sberbank)'],
-  '5200': ['OTPVSKBX', 'OTP Banka Slovensko'],
+  '3100': ['LUBASKBX', 'Prima banka Slovensko (kód pre bežné platby)'],
   '5600': ['KOMASK2X', 'Prima banka Slovensko'],
-  '6500': ['POBNSKBA', '365.bank (býv. Poštová banka)'],
+  '5900': ['PRVASKBA', 'Prvá stavebná sporiteľňa'],
+  '6500': ['POBNSKBA', '365.bank'],
   '7300': ['INGBSKBX', 'ING Bank N.V., pobočka'],
   '7500': ['CEKOSKBX', 'Československá obchodná banka'],
-  '7930': ['WUSTSKBA', 'Wüstenrot stavebná sporiteľňa'],
-  '8050': ['COBASKBX', 'Commerzbank AG, pobočka'],
+  '7930': ['WUSTSKBA', 'Bausparkasse Wüstenrot, pobočka'],
   '8100': ['KOMBSKBA', 'Komerční banka, pobočka'],
-  '8120': ['BSLOSK22', 'Privatbanka'],
+  '8120': ['BSLOSK22', 'Penta Bank'],
   '8130': ['CITISKBA', 'Citibank Europe, pobočka'],
-  '8170': ['KBSPSKBX', 'ČSOB stavebná sporiteľňa'],
+  '8160': ['EXSKSKBX', 'EXIMBANKA SR'],
   '8180': ['SPSRSKBA', 'Štátna pokladnica'],
+  '8191': [null, 'Centrálny depozitár cenných papierov SR'],
+  '8320': ['JTBPSKBA', 'J&T BANKA, pobočka'],
   '8330': ['FIOZSKBA', 'Fio banka, pobočka'],
   '8360': ['BREXSKBX', 'mBank S.A., pobočka'],
   '8370': ['OBKLSKBA', 'Oberbank AG, pobočka'],
+  '8400': [null, 'COFIDIS SA, pobočka'],
   '8420': ['BFKKSKBB', 'BKS Bank AG, pobočka'],
-  '8430': ['KODBSKBX', 'KDB Bank Europe, pobočka'],
-  '9952': ['TPAYSKBX', 'Trust Pay']
+  '8450': ['BPKOSKBB', 'PKO BP S.A., pobočka'],
+  '9950': [null, 'Nexi Central Europe'],
+  '9952': ['TPAYSKBX', 'Trust Pay'],
+  '9955': ['PANXSK22', 'Unifiedpost Payments, organizačná zložka'],
+  '9956': ['PYYUSK22', 'Payout']
 };
 
+/* Dĺžky IBAN podľa registra IBAN (ISO 13616, SWIFT). Francúzske zámorské územia používajú FR, Åland FI. */
 const IBAN_LEN = {
-  SK: 24, CZ: 24, AT: 20, DE: 22, HU: 28, PL: 28, SI: 19, HR: 21, IT: 27, FR: 27, ES: 24, NL: 18, BE: 16, LU: 20,
-  IE: 22, PT: 25, GB: 22, CH: 21, LI: 21, DK: 18, SE: 24, NO: 15, FI: 18, EE: 20, LV: 21, LT: 20, RO: 24, BG: 22,
-  GR: 27, CY: 28, MT: 31, IS: 26
+  AD: 24, AE: 23, AL: 28, AT: 20, AZ: 28, BA: 20, BE: 16, BG: 22, BH: 22, BI: 27, BR: 29, BY: 28, CH: 21, CR: 22,
+  CY: 28, CZ: 24, DE: 22, DJ: 27, DK: 18, DO: 28, EE: 20, EG: 29, ES: 24, FI: 18, FK: 18, FO: 18, FR: 27, GB: 22,
+  GE: 22, GI: 23, GL: 18, GR: 27, GT: 28, HN: 28, HR: 21, HU: 28, IE: 22, IL: 23, IQ: 23, IS: 26, IT: 27, JO: 30,
+  KW: 30, KZ: 20, LB: 28, LC: 32, LI: 21, LT: 20, LU: 20, LV: 21, LY: 25, MC: 27, MD: 24, ME: 22, MK: 19, MN: 20,
+  MR: 27, MT: 31, MU: 30, NI: 28, NL: 18, NO: 15, OM: 23, PK: 24, PL: 28, PS: 29, PT: 25, QA: 29, RO: 24, RS: 22,
+  RU: 33, SA: 24, SC: 31, SD: 18, SE: 24, SI: 19, SK: 24, SM: 27, SO: 23, ST: 25, SV: 28, TL: 23, TN: 24, TR: 26,
+  UA: 29, VA: 22, VG: 24, XK: 20, YE: 30
 };
 
 /* Slovenské preklady všeobecných pravidiel Peppol BIS 3.0 (CEN pravidlá prekladá oficiálny workbook FS SR). */
@@ -165,7 +193,7 @@ const PEPPOL_SK = {
   'PEPPOL-EN16931-R001': 'Musí byť uvedený typ obchodného procesu (BT-23 ProfileID).',
   'PEPPOL-EN16931-R002': 'Na úrovni dokladu je povolená najviac jedna poznámka (BT-22), okrem prípadu, keď sú kupujúci aj predávajúci nemecké subjekty.',
   'PEPPOL-EN16931-R003': 'Musí byť uvedené referenčné označenie kupujúceho (BT-10) alebo číslo objednávky (BT-13).',
-  'PEPPOL-EN16931-R004': 'Identifikátor špecifikácie (BT-24) musí začínať hodnotou „urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0“.',
+  'PEPPOL-EN16931-R004': 'Identifikátor špecifikácie (BT-24) musí začínať hodnotou „urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0“ a dodržať pravidlá formátu identifikátora (nesmie obsahovať „::“).',
   'PEPPOL-EN16931-R005': 'Kód účtovnej meny DPH (BT-6) sa musí líšiť od kódu meny faktúry (BT-5), ak je uvedený.',
   'PEPPOL-EN16931-R007': 'Typ obchodného procesu (BT-23) musí mať schválený identifikátor (napr. urn:fdc:peppol.eu:2017:poacc:billing:01:1.0).',
   'PEPPOL-EN16931-R008': 'Dokument nesmie obsahovať prázdne elementy.',

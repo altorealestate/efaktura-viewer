@@ -60,15 +60,21 @@ const Model = (() => {
     return cur;
   }
 
+  // porovnanie ako v pravidlách CEN: normalize-space(upper-case(…)) – napr. TaxScheme „vat“ je tiež DPH
+  const norm = s => s.replace(/[ \t\r\n]+/g, ' ').trim().toUpperCase();
   function predOk(node, pd) {
-    const vals = sel(node, pd.path).map(h => (h.attr ? h.node.attrMap[h.attr] : h.node.text).trim());
-    return pd.op === '=' ? vals.includes(pd.val) : !vals.includes(pd.val);
+    const vals = sel(node, pd.path).map(h => norm(h.attr ? h.node.attrMap[h.attr] : h.node.text));
+    const want = norm(pd.val);
+    return pd.op === '=' ? vals.includes(want) : !vals.includes(want);
   }
+
+  /** Orezanie len bielych znakov XML (medzera, tab, CR, LF) – NBSP je súčasť hodnoty. */
+  const xmlTrim = s => s.replace(/^[ \t\r\n]+|[ \t\r\n]+$/g, '');
 
   const one = (ctx, path) => sel(ctx, path)[0] || null;
   const val = (ctx, path) => {
     const h = one(ctx, path);
-    return h ? (h.attr ? h.node.attrMap[h.attr] : h.node.text).trim() : null;
+    return h ? xmlTrim(h.attr ? h.node.attrMap[h.attr] : h.node.text) : null;
   };
 
   function qname(node) {
@@ -100,7 +106,7 @@ const Model = (() => {
       const info = (window.SK_BT || {})[bt] || {};
       const f = {
         id: this.fields.length, bt, label: o.label || info.n || bt, short: o.short || null,
-        node, attr, raw, value: raw != null ? raw.trim() : null, missing: !hit,
+        node, attr, raw, value: raw != null ? xmlTrim(raw) : null, missing: !hit,
         fmt: o.fmt || 'text', list: o.list || null, ctx, relPath: path, group: o.group || null,
         tech: !!o.tech, important: !!o.important, findings: [], sev: null
       };
@@ -272,9 +278,12 @@ const Model = (() => {
       D.payee.name = R.f('BT-59', pp.node, 'cac:PartyName/cbc:Name', { group: 'BG-10' });
       D.payee.ids = sel(pp.node, 'cac:PartyIdentification/cbc:ID').map(h => {
         const sepa = (h.node.attrMap.schemeID || '').trim() === 'SEPA';
-        return R.add(sepa ? 'BT-90' : 'BT-60', h, pp.node, 'cac:PartyIdentification/cbc:ID', { group: 'BG-10' });
+        const f = R.add(sepa ? 'BT-90' : 'BT-60', h, pp.node, 'cac:PartyIdentification/cbc:ID', { group: 'BG-10' });
+        f.scheme = R.add(f.bt + '-1', one(h.node, '@schemeID'), h.node, '@schemeID', { tech: true, group: 'BG-10' });
+        return f;
       });
       D.payee.legalId = R.f('BT-61', pp.node, 'cac:PartyLegalEntity/cbc:CompanyID', { group: 'BG-10' });
+      D.payee.legalIdScheme = D.payee.legalId.node && R.f('BT-61-1', D.payee.legalId.node, '@schemeID', { tech: true, group: 'BG-10' });
     }
     const tr = one(root, 'cac:TaxRepresentativeParty');
     if (tr) {
@@ -293,6 +302,7 @@ const Model = (() => {
     if (dl) {
       D.delivery.name = R.f('BT-70', dl.node, 'cac:DeliveryParty/cac:PartyName/cbc:Name', { group: 'BG-13' });
       D.delivery.locId = R.f('BT-71', dl.node, 'cac:DeliveryLocation/cbc:ID', { group: 'BG-13' });
+      D.delivery.locScheme = D.delivery.locId.node && R.f('BT-71-1', D.delivery.locId.node, '@schemeID', { tech: true, group: 'BG-13' });
       const da = one(dl.node, 'cac:DeliveryLocation/cac:Address');
       D.delivery.addr = address(R, da && da.node, ['BT-75', 'BT-76', 'BT-165', 'BT-77', 'BT-78', 'BT-79', 'BT-80'], absPath(dl.node) + '/cac:DeliveryLocation/cac:Address', 'BG-15');
     }
@@ -397,6 +407,7 @@ const Model = (() => {
       L.id = R.f('BT-126', n, 'cbc:ID', { group: g });
       L.note = R.f('BT-127', n, 'cbc:Note', { group: g });
       L.object = R.f('BT-128', n, 'cac:DocumentReference/cbc:ID', { group: g });
+      L.objectScheme = L.object.node && R.f('BT-128-1', L.object.node, '@schemeID', { tech: true, group: g });
       for (const t of sel(n, 'cac:DocumentReference/cbc:DocumentTypeCode')) R.add('TECH', t, n, 'cac:DocumentReference/cbc:DocumentTypeCode', { tech: true, label: 'Kód typu dokumentu (130)' });
       L.qty = R.f('BT-129', n, qtyTag, { fmt: 'qty', group: g });
       L.unit = R.f('BT-130', n, qtyTag + '/@unitCode', { fmt: 'code', list: 'unit', group: g });

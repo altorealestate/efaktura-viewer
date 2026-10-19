@@ -185,7 +185,7 @@ code.xp { flex: 1; min-width: 0; }
 .tab.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 600; }
 .badge { font-size: 11px; font-weight: 700; padding: 0 6px; border-radius: 9px; background: var(--surface-2); color: var(--muted); line-height: 17px; }
 .badge:empty { display: none; }
-.badge.bad { background: var(--bad); color: #fff; } .badge.warn { background: var(--warn); color: #fff; } .badge.info { background: var(--info-weak); color: var(--info); }
+.badge.bad { background: var(--bad); color: var(--on-accent); } .badge.warn { background: var(--warn); color: var(--on-accent); } .badge.info { background: var(--info-weak); color: var(--info); }
 .pane { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .pane-bar { display: flex; gap: 6px; align-items: center; padding: 7px 12px; border-bottom: 1px solid var(--line-2); flex-wrap: wrap; flex: none; }
 .pane-body { flex: 1; overflow: auto; padding: 10px 12px; min-height: 0; }
@@ -200,6 +200,7 @@ code.xp { flex: 1; min-width: 0; }
 
 .empty-state { text-align: center; color: var(--muted); padding: 30px 10px; }
 .empty-state.ok { color: var(--ok); font-weight: 600; }
+.empty-state.bad { color: var(--bad); font-weight: 600; }
 
 /* ---------- nálezy ---------- */
 .fd {
@@ -228,6 +229,8 @@ code.test { display: block; font-size: 11px; white-space: pre-wrap; word-break: 
 
 /* ---------- XML ---------- */
 .xml { padding: 6px 0 20px; font: 12px/1.6 var(--mono); }
+/* bloky po 200 riadkoch: prehliadač vykresľuje len viditeľnú časť (veľké XML) */
+.xc { content-visibility: auto; contain-intrinsic-block-size: auto 3840px; }
 .xl { display: flex; min-width: max-content; }
 body.xml-wrap .xl { min-width: 0; }
 .ln { flex: none; width: 4.4em; text-align: right; padding-right: 10px; margin-right: 10px; color: var(--muted); user-select: none; border-right: 1px solid var(--line-2); opacity: .75; }

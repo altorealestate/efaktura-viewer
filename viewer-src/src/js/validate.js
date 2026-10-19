@@ -43,19 +43,26 @@ const Validator = (() => {
         en = en.replace(/^\[[^\]]+\]\s*-?\s*/, '');
         let flag = (el.getAttribute('flag') || el.getAttribute('role') || 'fatal').toLowerCase();
         if (flag === 'error') flag = 'fatal';
-        const sk = source === 'cen' ? (window.SK_RULES || {})[id] : PEPPOL_SK[id];
+        if (!SEV_OK.has(flag)) flag = 'fatal';
+        let sk = own(source === 'cen' ? window.SK_RULES : PEPPOL_SK, id);
+        if (sk && /TODO/.test(sk)) sk = null;
         out.push({ id, flag, source, en, text: sk || en, translated: !!sk, location: el.getAttribute('location') || '', test: el.getAttribute('test') || '' });
       }
     }
     return out;
   }
+  const SEV_OK = new Set(['fatal', 'warning', 'info']);
+
+  /** Jedna sada pravidiel ('cen' | 'peppol'); chyba jadra (neplatná hodnota v dokumente) sa šíri ako výnimka. */
+  async function validateSet(set, xml) {
+    const r = await load();
+    return parseSvrl(await runOne(r[set], xml), set);
+  }
 
   async function validate(xml) {
-    const r = await load();
     const t0 = performance.now();
-    const cen = parseSvrl(await runOne(r.cen, xml), 'cen');
-    const peppol = parseSvrl(await runOne(r.peppol, xml), 'peppol');
-    return { findings: cen.concat(peppol), ms: Math.round(performance.now() - t0) };
+    const findings = (await validateSet('cen', xml)).concat(await validateSet('peppol', xml));
+    return { findings, ms: Math.round(performance.now() - t0) };
   }
 
   /** Prepojenie nálezu s poľami modelu (podľa location a BT kódov v texte). */
@@ -92,8 +99,8 @@ const Validator = (() => {
         }
       }
       if (!fields.length) fields = D.fields.filter(fl => fl.node === loc.node && (!loc.attr || fl.attr === loc.attr));
-      if (!fields.length) {
-        // najbližšie pole pod daným uzlom
+      if (!fields.length && !isRoot) {
+        // najbližšie pole pod daným uzlom (pri koreni nie – nález sa týka celého dokladu, nie prvého poľa)
         fields = D.fields.filter(fl => fl.node && !fl.tech && XP.isAncestorOrSelf(loc.node, fl.node)).slice(0, 1);
       }
     }
@@ -102,5 +109,5 @@ const Validator = (() => {
     return f;
   }
 
-  return { validate, link, load };
+  return { validate, validateSet, link, load };
 })();

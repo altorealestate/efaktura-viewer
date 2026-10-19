@@ -77,8 +77,14 @@ for row in ws.iter_rows(min_row=4, values_only=True):
     txt = re.sub(r'^\[' + re.escape(rid) + r'\]\s*-?\s*', '', txt)
     rules[rid] = txt
 
-json.dump(bt, open(os.path.join(out, 'sk_bt.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
-json.dump(rules, open(os.path.join(out, 'sk_rules.json'), 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
+# doplnenie chýbajúcich prekladov a opravy známych chýb workbooku (sk_fixes.py)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sk_fixes  # noqa: E402
+bt = sk_fixes.fix_bt(bt)
+rules = sk_fixes.fix_rules(rules, bt)
+
+json.dump(bt, open(os.path.join(out, 'sk_bt.json'), 'w', encoding='utf-8', newline='\n'), ensure_ascii=False, indent=0)
+json.dump(rules, open(os.path.join(out, 'sk_rules.json'), 'w', encoding='utf-8', newline='\n'), ensure_ascii=False, indent=0)
 
 # --- single-byte code page tables for mojibake detection ---
 tables = {}

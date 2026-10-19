@@ -12,7 +12,7 @@ import sys
 SRC = pathlib.Path(__file__).resolve().parent.parent          # viewer-src/
 OUT = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else SRC.parent / 'eFaktura-Viewer.html'
 
-JS_FILES = ['codes.js', 'util.js', 'xmlparse.js', 'model.js', 'skchecks.js', 'validate.js', 'render.js', 'app.js']
+JS_FILES = ['codes.js', 'util.js', 'xmlparse.js', 'xsd.js', 'model.js', 'skchecks.js', 'validate.js', 'render.js', 'app.js']
 
 
 def read(rel):
@@ -38,6 +38,7 @@ def main():
         'SK_BT': json.loads(read('data/sk_bt.json')),
         'SK_RULES': json.loads(read('data/sk_rules.json')),
         'CODEPAGES': json.loads(read('data/codepages.json')),
+        'UBL_XSD': json.loads(read('data/ubl21_xsd.json')),
     }
     data_js = ''.join(f'window.{k}={safe_json(v)};\n' for k, v in data.items())
     app_js = '\n'.join(no_script_end(f, read('src/js/' + f)) for f in JS_FILES)

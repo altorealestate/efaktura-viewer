@@ -110,7 +110,7 @@
 "url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-DespatchDocumentReference/cbc-ID/"
 },
 "BT-17": {
-"n": "Referenčné označenie ponuky (pozor zmena: označenie VO sme dali radšej BT-12 - v zmysle UBL2.1 Faktúry)",
+"n": "Referenčné označenie ponuky alebo časti verejného obstarávania",
 "d": "Identifikácia výzvy na podanie ponuky, ku ktorej sa faktúra vzťahuje. Indentifikácia verejného obstarávania",
 "u": "V niektorých krajinách sa uvádza odkaz na výzvu na podanie ponúk, ktorá viedla k danej zákazke. V prípade nadlitmitných a podlimitných zákaziek sa uvádza číslo oznámenia vo vestníku verejného obstarávania alebo úradnom vestníku obstarávania EÚ v jej elektronickej verzii TED (Tenders Electronic Daily). V prípade zákaziek s nízkou hodnotou sa uvedie vlastné označenie kupujúceho.",
 "r": "nevyžaduje sa",
@@ -183,7 +183,7 @@
 "url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cbc-CustomizationID/"
 },
 "BG-3": {
-"n": "REFERENČNÉ OZNAČENIE PREDCHÁDZAJÚCEJ\nFAKTÚRY",
+"n": "REFERENČNÉ OZNAČENIE PREDCHÁDZAJÚCEJ",
 "d": "Skupina obchodných termínov poskytujúcich informácie o jednej alebo viacerých predchádzajúcich faktúrach.",
 "u": "Používa sa v prípade:\n - opravy predchádzajúcej faktúry\n - odkazu na predchádzajúce čiastkové faktúry v konečnej faktúre\n -odkazu na predchádzajúce zálohové faktúry v konečnej faktúre",
 "r": "nevyžaduje sa",
@@ -598,7 +598,7 @@
 "url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-TaxRepresentativeParty/cac-PartyName/cbc-Name/"
 },
 "BT-63": {
-"n": "Identifikátor daňového zástupcu predávajúceho\nna účely DPH",
+"n": "Identifikátor daňového zástupcu predávajúceho",
 "d": "Identifikátor daňového zástupcu predávajúcehona účely DPH.\nJeho osobitné identifkačné číslo pre DPH.",
 "u": "Daňové identifikačné číslo na účely DPH s predponou vyjadrujúcou kód krajiny podľa EN ISO 3166-1 „Kódy pre názvy krajín a ich častí“.",
 "r": "vyžaduje sa",
@@ -679,14 +679,14 @@
 "url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryParty/cac-PartyName/cbc-Name/"
 },
 "BT-71": {
-"n": "Identifikátor miesta určenia dodávky\nIdentifikátor schémy",
+"n": "Identifikátor miesta dodania",
 "d": "Identifikátor miesta, na ktoré sa dodáva tovar a služby.\nIdentifikátor schémy identifikácie pre identifikátor miesta určenia dodávky.",
 "u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor, ktorý priradil kupujúci alebo predávajúci.\n Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
 "r": "nevyžaduje sa",
 "url": "https://docs.peppol.eu/poacc/billing/3.0/2025-Q4/syntax/ubl-invoice/cac-Delivery/cac-DeliveryLocation/cbc-ID/"
 },
 "BT-71-1": {
-"n": "Identifikátor miesta určenia dodávky\nIdentifikátor schémy",
+"n": "Identifikátor schémy",
 "d": "Identifikátor miesta, na ktoré sa dodáva tovar a služby.\nIdentifikátor schémy identifikácie pre identifikátor miesta určenia dodávky.",
 "u": "Ak schéma nie je špecifikovaná, mali by ho kupujúci a predávajúci poznať, napr. už predtým oznámený identifikátor, ktorý priradil kupujúci alebo predávajúci.\n Ak sa použije, musí byť schéma identifikácie zvolená z položiek zoznamu zverejneného agentúrou pre správu ISO/IEC 6523.",
 "r": "nevyžaduje sa",
@@ -1465,6 +1465,12 @@
 "url": "https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-Item/cac-AdditionalItemProperty/cbc-Value/"
 },
 "BT-157-1": {
+"n": "Identifikátor schémy"
+},
+"BT-60-1": {
+"n": "Identifikátor schémy"
+},
+"BT-90-1": {
 "n": "Identifikátor schémy"
 }
 }

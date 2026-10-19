@@ -46,8 +46,8 @@
       </div>
       <ul class="feat">
         <li><b>Vizuál faktúry s pôvodom údajov</b> – každý údaj je prepojený s elementom v XML (BT kód, XPath, číslo riadku).</li>
-        <li><b>Oficiálna validácia</b> – Schematron EN 16931 + Peppol BIS 3.0 (<span id="rules-ver"></span>), rovnaké pravidlá ako prístupové body Peppol.</li>
-        <li><b>SK kontroly</b> – Peppol ID 0245:DIČ, IČO, IČ DPH, IBAN/BIC, variabilný symbol, DUZP, poškodená diakritika, prílohy.</li>
+        <li><b>Oficiálna validácia</b> – schéma UBL 2.1 (XSD) a Schematron EN 16931 + Peppol BIS 3.0 (<span id="rules-ver"></span>), rovnaké stupne kontroly ako v prístupových bodoch Peppol.</li>
+        <li><b>SK kontroly</b> – Peppol ID 0245:DIČ, IČO, IČ DPH, IBAN/BIC, variabilný symbol, DUZP, sadzby DPH, odkaz na pôvodnú faktúru, poškodená diakritika, prílohy.</li>
         <li><b>Lokálne a offline</b> – súbory sa nikam neodosielajú, všetko beží iba vo vašom prehliadači.</li>
       </ul>
     </div>
@@ -93,23 +93,25 @@
         <p>Prepojenie funguje oboma smermi: kliknutím na údaj vo faktúre sa zobrazí jeho zdroj v XML a v záložke <b>XML</b> stačí prejsť myšou po kóde – príslušný údaj sa vo faktúre vyznačí, spojí čiarou s riadkom XML a zobrazí sa karta s názvom poľa, popisom a číselníkom. Pri agregátoch (napr. <code>cac:InvoiceLine</code>) sa vyznačí celá skupina údajov.</p>
         <h3>Validácia</h3>
         <ul>
-          <li><b>EN 16931 (CEN)</b> a <b>Peppol BIS Billing 3.0</b> – oficiálne Schematron pravidlá (<span id="about-rules"></span>), rovnaké, aké používajú prístupové body Peppol. Ak doklad nevyhovuje týmto pravidlám, sieť Peppol ho odmietne.</li>
+          <li><b>Schéma UBL 2.1 (XSD)</b> – povolené elementy a ich poradie, počty výskytov, povinné atribúty a formát hodnôt (čísla, dátumy). Model schémy vychádza z oficiálnych XSD OASIS; obsah rozšírení (<code>ext:UBLExtensions</code>) sa nekontroluje.</li>
+          <li><b>EN 16931 (CEN)</b> a <b>Peppol BIS Billing 3.0</b> – oficiálne Schematron pravidlá (<span id="about-rules"></span>). Ak doklad nevyhovuje schéme alebo týmto pravidlám, prístupový bod Peppol ho odmietne. Jediná odchýlka: nemecké pravidlo DE-R-019 (kontrola IBAN) nástroj overuje sám, lebo jadro SaxonJS nepočíta s dostatočne veľkými celými číslami.</li>
           <li><b>SK kontroly</b> – interné doplnkové kontroly podľa požiadaviek Finančnej správy SR. Nie sú to oficiálne validačné pravidlá; upozorňujú na nedostatky, ktoré oficiálna validácia nezachytí.</li>
-          <li><b>XML</b> – kontrola, či je súbor korektné XML v kódovaní UTF-8.</li>
+          <li><b>XML</b> – kontrola, či je súbor korektné XML, či kódovanie zodpovedá deklarácii a či neobsahuje DOCTYPE (DTD).</li>
         </ul>
         <h3>SK kontroly</h3>
         <table class="map small">
           <tbody>
-            <tr><td><code>SK-PEPPOL-01/02</code></td><td>Peppol ID (BT-34/BT-49) slovenského subjektu musí byť <code>0245:DIČ</code> (10 číslic) – PASR SK, FAQ FS SR č. 23.</td></tr>
+            <tr><td><code>SK-PEPPOL-01..04</code></td><td>Peppol ID (BT-34/BT-49) subjektu so sídlom v SR musí byť <code>0245:DIČ</code> (10 číslic) – PASR SK, FAQ FS SR, časť II, príklad č. 23. Zahraničná osoba registrovaná na DPH v SR môže mať vlastné Peppol ID.</td></tr>
             <tr><td><code>SK-ID-01</code></td><td>IČ DPH v tvare SK + 10 číslic, deliteľné 11.</td></tr>
-            <tr><td><code>SK-ID-02/03</code></td><td>IČO v BT-30/BT-47 (8 číslic, schéma 0158), nie IČ DPH.</td></tr>
-            <tr><td><code>SK-LEG-01/02</code></td><td>Zápis v obchodnom registri (BT-33, § 3a ObZ) a úplná adresa (§ 74 zákona o DPH).</td></tr>
+            <tr><td><code>SK-ID-05/06</code></td><td>IČ DPH odberateľa (BT-48) – povinné pri prenesení daňovej povinnosti (AE, § 69 ods. 12), inak pripomienka (§ 74 ods. 1 písm. b).</td></tr>
+            <tr><td><code>SK-ID-02..04</code></td><td>IČO v BT-30/BT-47 (8 číslic, <code>schemeID="0158"</code>), nie IČ DPH.</td></tr>
+            <tr><td><code>SK-LEG-01/02</code></td><td>Zápis v obchodnom registri (BT-33, § 3a ObZ – len pre podnikateľov zapísaných v registri) a úplná adresa (§ 74 zákona o DPH).</td></tr>
             <tr><td><code>SK-DATE-01..03</code></td><td>DUZP v BT-7, ak sa líši od dátumu vyhotovenia; BT-8 sa v SK nepoužíva; splatnosť po vyhotovení.</td></tr>
-            <tr><td><code>SK-PAY-01..09</code></td><td>IBAN (kontrolný súčet), BIC/SWIFT v BT-86 (formát, zhoda s bankou podľa IBAN), variabilný symbol v BT-83, kód spôsobu platby.</td></tr>
-            <tr><td><code>SK-VAT-01/02</code></td><td>Kategórie DPH používané v SR a platné sadzby (23 %, 19 %, 5 % od 1. 1. 2025).</td></tr>
-            <tr><td><code>SK-ENC-01</code></td><td>Poškodená diakritika (UTF-8 dvakrát prekódované cez Windows-1250/1252).</td></tr>
+            <tr><td><code>SK-PAY-01..10</code></td><td>IBAN (kontrolný súčet, dĺžka podľa registra IBAN), BIC/SWIFT v BT-86 (formát, zhoda s bankou podľa číselníka NBS), variabilný symbol v BT-83, kód spôsobu platby.</td></tr>
+            <tr><td><code>SK-VAT-01..03</code></td><td>Kategórie DPH používané v SR, platné sadzby podľa dňa vzniku daňovej povinnosti (do 2024: 20/10/5 %, od 1. 1. 2025: 23/19/5 %) a výška dane v eurách pri faktúre v cudzej mene (§ 74 ods. 1 písm. i).</td></tr>
+            <tr><td><code>SK-ENC-01</code></td><td>Poškodená diakritika (UTF-8 prekódované cez Windows-1250/1252 alebo ISO-8859-1).</td></tr>
             <tr><td><code>SK-ATT-01..03</code></td><td>Prílohy – názov súboru, platnosť base64, typ obsahu, veľkosť.</td></tr>
-            <tr><td><code>SK-REF-01</code></td><td>Podozrivé mapovanie referencií (napr. číslo zmluvy = číslo faktúry).</td></tr>
+            <tr><td><code>SK-REF-01/02</code></td><td>Podozrivé mapovanie referencií (napr. číslo zmluvy = číslo faktúry); opravný doklad musí obsahovať číslo pôvodnej faktúry v BT-25 (§ 85o ods. 5 zákona o DPH).</td></tr>
           </tbody>
         </table>
         <p class="small muted">SK TDD UUID v pätičke vizuálu je vypočítaný podľa workbooku FS SR (UUIDv5 z BT-34 schemeID, BT-34, BT-3, BT-1, BT-2) – informatívne.</p>
@@ -125,7 +127,7 @@
         <h3>Aktualizácia pravidiel</h3>
         <p class="small">OpenPeppol vydáva nové pravidlá spravidla v máji a novembri. Aktualizáciu spustíte skriptom <code>viewer-src/tools/update_rules.py</code> (stiahne aktuálne Schematron súbory, skompiluje ich a znovu zostaví tento HTML súbor). Zostavené: <span id="about-build"></span>.</p>
         <h3>Licencie</h3>
-        <p class="small">Validačné artefakty EN 16931 © CEN (EUPL 1.2), pravidlá Peppol © OpenPeppol AISBL. Schematron skompilovaný nástrojom SchXslt (David Maus, MIT).</p>
+        <p class="small">Validačné artefakty EN 16931 © CEN (EUPL 1.2), pravidlá Peppol © OpenPeppol AISBL. Schematron skompilovaný nástrojom SchXslt (David Maus, MIT). Schéma UBL 2.1 © OASIS Open. Číselník kódov bánk: Národná banka Slovenska.</p>
         <details class="small"><summary>SaxonJS © Saxonica Ltd – licencia</summary><pre class="lic" id="saxon-license"><!--INJECT:SAXON_LICENSE--></pre></details>
       </div>
     </div>

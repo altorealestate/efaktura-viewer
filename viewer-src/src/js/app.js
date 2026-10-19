@@ -19,28 +19,67 @@ const App = (() => {
   /* ---------- načítanie a analýza ---------- */
   const xmlF = (id, flag, text, o = {}) => Object.assign({ id, flag, source: 'xml', text, fields: [] }, o);
 
+  /**
+   * Bajty → text tak, ako ich prečíta príjemca: BOM, inak kódovanie z XML deklarácie (XML 1.0 § 4.3.3),
+   * inak UTF-8. Nesúlad deklarácie s obsahom je chyba – príjemca by videl iný text alebo súbor odmietol.
+   */
+  const UTF8_ADVICE = 'E-faktúry sa bežne posielajú v UTF-8; niektorí poskytovatelia a systémy iné kódovanie nepodporujú.';
   function decode(d, bytes) {
-    let start = 0;
-    if (bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF) start = 3;
-    if ((bytes[0] === 0xFF && bytes[1] === 0xFE) || (bytes[0] === 0xFE && bytes[1] === 0xFF)) {
-      d.text = new TextDecoder(bytes[0] === 0xFF ? 'utf-16le' : 'utf-16be').decode(bytes.subarray(2));
-      d.findings.push(xmlF('XML-02', 'fatal', 'Súbor je v kódovaní UTF-16. Peppol vyžaduje UTF-8.'));
+    const utf8 = b => new TextDecoder('utf-8', { fatal: true }).decode(b);
+    const declOf = s => { const m = /^<\?xml[^>]*?encoding\s*=\s*["']([^"']+)["']/i.exec(s); return m ? m[1].trim() : null; };
+    // UTF-16 s BOM alebo bez neho (XML 1.0, príloha F: „<?“ ako 3C 00 3F 00 / 00 3C 00 3F)
+    const le = bytes[0] === 0x3C && bytes[1] === 0x00 && bytes[2] === 0x3F && bytes[3] === 0x00;
+    const be = bytes[0] === 0x00 && bytes[1] === 0x3C && bytes[2] === 0x00 && bytes[3] === 0x3F;
+    if ((bytes[0] === 0xFF && bytes[1] === 0xFE) || (bytes[0] === 0xFE && bytes[1] === 0xFF) || le || be) {
+      const enc = bytes[0] === 0xFF || le ? 'utf-16le' : 'utf-16be';
+      d.text = new TextDecoder(enc).decode(bytes.subarray(le || be ? 0 : 2));
+      const decl = declOf(d.text);
+      if (decl && !/^(utf-?16|ucs-?2)/i.test(decl)) {
+        d.findings.push(xmlF('XML-02', 'fatal', `Súbor je v kódovaní UTF-16 (podľa BOM), ale XML deklarácia uvádza „${decl}“. Takýto súbor parser XML odmietne.`, { line: 1 }));
+      } else {
+        d.findings.push(xmlF('XML-02', 'warning', 'Súbor je v kódovaní UTF-16. ' + UTF8_ADVICE, { line: 1 }));
+      }
       return;
     }
-    try {
-      d.text = new TextDecoder('utf-8', { fatal: true }).decode(bytes.subarray(start));
-    } catch (_) {
-      d.text = new TextDecoder('windows-1250').decode(bytes.subarray(start));
-      d.findings.push(xmlF('XML-02', 'fatal', 'Súbor nie je platné UTF-8 (obsahuje neplatné bajty). Pre náhľad bol dekódovaný ako Windows-1250. Peppol vyžaduje UTF-8.'));
+    const bom = bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF;
+    const body = bytes.subarray(bom ? 3 : 0);
+    const decl = declOf(new TextDecoder('latin1').decode(body.subarray(0, 300)));
+    const declUtf8 = !decl || /^utf-?8$/i.test(decl);
+    let validUtf8 = true, asUtf8 = null;
+    try { asUtf8 = utf8(body); } catch (_) { validUtf8 = false; }
+    const nonAscii = body.some(b => b > 0x7f);
+    if (bom || declUtf8) {
+      if (bom && !declUtf8) {
+        d.findings.push(xmlF('XML-02', 'fatal', `Súbor začína znakom BOM pre UTF-8, ale XML deklarácia uvádza kódovanie „${decl}“. Takýto súbor parser XML odmietne.`, { line: 1 }));
+      }
+      if (validUtf8) { d.text = asUtf8; return; }
+      d.text = new TextDecoder('windows-1250').decode(body);
+      d.findings.push(xmlF('XML-02', 'fatal', `Súbor nie je platné UTF-8 (obsahuje neplatné bajty)${decl ? '' : ' a XML deklarácia neuvádza iné kódovanie'}. Parser XML ho odmietne. Pre náhľad bol dekódovaný ako Windows-1250.`, { line: 1 }));
+      return;
+    }
+    // deklarované iné kódovanie ako UTF-8 – dekóduje sa podľa deklarácie, ako to urobí príjemca
+    let dec = null;
+    if (!/^(utf-?16|ucs-?2|utf-?32)/i.test(decl)) { try { dec = new TextDecoder(decl); } catch (_) { dec = null; } }
+    if (!dec) {
+      d.text = validUtf8 ? asUtf8 : new TextDecoder('windows-1250').decode(body);
+      d.findings.push(xmlF('XML-02', 'fatal', `XML deklarácia uvádza kódovanie „${decl}“, ktoré obsahu súboru nezodpovedá alebo ho prehliadač nepozná. Parser XML takýto súbor odmietne. Pre náhľad bol dekódovaný ako ${validUtf8 ? 'UTF-8' : 'Windows-1250'}.`, { line: 1 }));
+      return;
+    }
+    d.text = dec.decode(body);
+    if (validUtf8 && nonAscii) {
+      d.findings.push(xmlF('XML-03', 'error', `XML deklarácia uvádza kódovanie „${decl}“, ale obsah súboru je v UTF-8. Príjemca ho prečíta podľa deklarácie, takže diakritika bude poškodená (náhľad ukazuje text tak, ako ho uvidí príjemca).`, {
+        line: 1, detail: 'Pre porovnanie – ten istý text čítaný ako UTF-8: „' + (asUtf8.match(/[^\x00-\x7f][^<>\n]{0,40}/) || [''])[0] + '…“',
+        hint: 'Oprava: v exporte uvádzať encoding="UTF-8" (alebo súbor skutočne uložiť v deklarovanom kódovaní).'
+      }));
+    } else {
+      d.findings.push(xmlF('XML-02', 'warning', `Súbor je v kódovaní „${decl}“. ` + UTF8_ADVICE, { line: 1 }));
     }
   }
 
   function analyze(d) {
+    // koncové znaky riadkov ako parser XML (§ 2.11): CR LF a samotné CR → LF
+    if (/\r/.test(d.text)) d.text = d.text.replace(/\r\n?/g, '\n');
     const text = d.text;
-    const decl = /^\s*<\?xml[^>]*?encoding\s*=\s*["']([^"']+)["']/i.exec(text);
-    if (decl && !/^utf-?8$/i.test(decl[1])) {
-      d.findings.push(xmlF('XML-03', 'warning', `XML deklarácia uvádza kódovanie „${decl[1]}“. Peppol vyžaduje UTF-8.`, { line: 1 }));
-    }
     d.workText = text;
     const wf = XP.checkWellFormed(text);
     if (!wf.ok) {
@@ -57,6 +96,23 @@ const App = (() => {
       else { d.parsed = XP.parse(text); d.model = null; d.validation = 'skipped'; return; }
     }
     d.parsed = XP.parse(d.workText);
+    if (d.parsed.tooDeep) {
+      d.findings.push(xmlF('XML-06', 'fatal', 'Elementy sú vnorené hlbšie ako 256 úrovní. Takýto dokument nie je e-faktúra UBL (bežná hĺbka je do 10 úrovní) a nástroj ho nespracuje.'));
+      d.model = null; d.validation = 'skipped';
+      return;
+    }
+    const dt = d.parsed.doctype;
+    if (dt) {
+      d.findings.push(xmlF('XML-05', 'fatal', 'Dokument obsahuje deklaráciu DOCTYPE (DTD). E-faktúry UBL ju nepoužívajú a prístupové body ju z bezpečnostných dôvodov odmietajú (spracovanie DTD je vypnuté).', {
+        line: d.parsed.lineOf(dt.off),
+        detail: dt.text.length > 400 ? dt.text.slice(0, 400) + '…' : dt.text,
+        hint: dt.internal
+          ? 'DTD môže definovať entity a predvolené hodnoty atribútov, takže iný program by z toho istého súboru prečítal iné údaje, než aké sú vo vizuáli. Nástroj preto dokument nevaliduje – vizuál je len orientačný.'
+          : 'Nástroj dokument nevaliduje. Odstráňte riadok <!DOCTYPE …> z exportu.'
+      }));
+      d.validation = 'skipped';
+      d.validationError = 'Dokument obsahuje DOCTYPE – validácia sa nespustila';
+    }
     const r = d.parsed.root;
     const ubl = r && ((r.local === 'Invoice' && r.ns === NS.inv) || (r.local === 'CreditNote' && r.ns === NS.cn));
     if (!ubl) {
@@ -67,16 +123,25 @@ const App = (() => {
     }
     d.model = Model.extract(d.parsed);
     d.tdd = SK.tddUuid(d.model);
+    if (!dt) d.findings.push(...XSD.validate(d.parsed));
     d.findings.push(...SK.run(d.model));
     applyFindings(d);
   }
 
-  const SRC_RANK = { xml: 0, cen: 1, peppol: 2, sk: 3 };
+  /** Nález schémy → polia modelu na tom istom elemente (pri atribúte jeho pole). */
+  function linkXsd(D, fd) {
+    if (!fd.node || fd.fields.length) return;
+    const own = D.fields.filter(fl => fl.node === fd.node && !fl.missing);
+    fd.fields = (fd.attr && own.some(fl => fl.attr === fd.attr)) ? own.filter(fl => fl.attr === fd.attr) : own.filter(fl => !fl.attr).concat(own.filter(fl => fl.attr)).slice(0, 4);
+  }
+
+  const SRC_RANK = { xml: 0, xsd: 1, cen: 2, peppol: 3, sk: 4 };
   function applyFindings(d) {
     if (d.model) {
       for (const f of d.model.fields) { f.findings = []; f.sev = null; }
       for (const fd of d.findings) {
         if (fd.source === 'cen' || fd.source === 'peppol') Validator.link(d.model, fd);
+        else if (fd.source === 'xsd') linkXsd(d.model, fd);
         for (const fl of fd.fields || []) {
           fl.findings.push(fd);
           if (!fl.sev || View.SEV_RANK[fd.flag] < View.SEV_RANK[fl.sev]) fl.sev = fd.flag;
@@ -104,23 +169,60 @@ const App = (() => {
     queue = queue.then(() => runValidation(d));
   }
 
+  const yieldUI = () => new Promise(r => setTimeout(r, 40));
   async function runValidation(d) {
     if (d.validation === 'skipped') { refresh(d); return; }
     d.validation = 'running';
+    d.valStep = 'EN 16931';
     refresh(d);
-    await new Promise(r => setTimeout(r, 40));
+    await yieldUI();
     try {
-      const res = await Validator.validate(d.workText);
-      d.findings = d.findings.filter(f => f.source !== 'cen' && f.source !== 'peppol').concat(res.findings);
-      d.validation = 'done';
-      d.valMs = res.ms;
+      await Validator.load();
     } catch (e) {
       console.error(e);
       d.validation = 'error';
-      d.validationError = 'Chyba validačného jadra: ' + (e && e.message || e);
+      d.validationError = 'Validačné pravidlá sa nepodarilo pripraviť: ' + (e && e.message || e);
+      applyFindings(d); refresh(d);
+      return;
     }
+    // každá sada pravidiel zvlášť: neplatná hodnota (napr. „12,50“) zastaví len tú sadu, nie celú validáciu
+    const t0 = performance.now();
+    const found = [];
+    for (const set of ['cen', 'peppol']) {
+      d.valStep = set === 'cen' ? 'EN 16931' : 'Peppol BIS 3.0';
+      refresh(d);
+      await yieldUI();
+      try {
+        found.push(...await Validator.validateSet(set, d.workText));
+      } catch (e) {
+        console.warn(e);
+        const xsdBad = d.findings.some(f => f.source === 'xsd');
+        found.push({
+          id: set === 'cen' ? 'CEN-STOP' : 'PEPPOL-STOP', flag: 'fatal', source: set, fields: [],
+          text: `Pravidlá ${set === 'cen' ? 'EN 16931' : 'Peppol BIS 3.0'} sa nedali vyhodnotiť – dokument obsahuje hodnotu, ktorú pravidlá nevedia spracovať (napr. text alebo „12,50“ namiesto čísla, prípadne zdvojený element).`,
+          detail: 'Hlásenie validačného jadra: ' + (e && e.message || e),
+          hint: xsdBad ? 'Príčinou sú chyby schémy UBL 2.1 uvedené v zozname – po ich oprave sa pravidlá vyhodnotia.' : 'Prístupový bod by takýto dokument odmietol.'
+        });
+      }
+    }
+    d.findings = d.findings.filter(f => f.source !== 'cen' && f.source !== 'peppol').concat(found.filter(f => !engineFalseAlarm(d, f)));
+    d.validation = 'done';
+    d.valMs = Math.round(performance.now() - t0);
+    d.valStep = null;
     applyFindings(d);
     refresh(d);
+  }
+
+  /**
+   * DE-R-019 počíta kontrolu IBAN cez xs:integer s 24 číslicami; SaxonJS má xs:integer len s presnosťou
+   * double, takže pravidlo zlyhá aj pri platnom nemeckom IBAN. Ak je IBAN podľa mod 97 platný, nález sa vynechá.
+   */
+  function engineFalseAlarm(d, f) {
+    if (f.id !== 'DE-R-019') return false;
+    const pm = XP.resolveLocation(d.parsed, f.location).node;
+    const acc = pm && Model.one(pm, 'cac:PayeeFinancialAccount/cbc:ID');
+    const iban = acc ? acc.node.text.replace(/\s+/g, '') : '';
+    return !!iban && /^[A-Z]{2}[0-9]{2}[a-zA-Z0-9]{0,30}$/.test(iban) && SK.ibanCheck(iban).ok;
   }
 
   function refresh(d) {
@@ -139,7 +241,8 @@ const App = (() => {
     const box = $('#files');
     box.innerHTML = state.docs.map((d, i) => {
       const c = View.counts(d.findings);
-      const st = d.validation === 'running' || d.validation === 'pending' ? 'run' : c.err ? 'bad' : c.warning ? 'warn' : 'ok';
+      const st = d.validation === 'running' || d.validation === 'pending' ? 'run'
+        : c.err || d.validation === 'error' || d.validation === 'skipped' ? 'bad' : c.warning ? 'warn' : 'ok';
       return `<button class="file-chip${i === state.cur ? ' active' : ''}" data-doc="${i}" title="${U.esc(d.name)}"><span class="dot ${st}"></span><span class="fn">${U.esc(d.name)}</span><span class="x" data-close="${i}" title="Zavrieť">×</span></button>`;
     }).join('');
     box.hidden = state.docs.length < 2;
@@ -244,13 +347,14 @@ const App = (() => {
     if (R) {
       const fids = new Set(R.fields.map(f => f.id));
       let first = null;
-      $$('#paper .f[data-f]').forEach(el => {
-        if (fids.has(+el.dataset.f)) {
+      // index prvkov vizuálu (paperEls) namiesto prehľadávania všetkých polí – pri tisíckach riadkov je klik okamžitý
+      for (const id of fids) {
+        for (const el of paperEls(id)) {
           el.classList.add(s.type === 'finding' ? 'fsel' : 'sel');
-          first = first || el;
+          if (!first || (el.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING)) first = el;
         }
-      });
-      $$('#map-body tr[data-f]').forEach(el => { if (fids.has(+el.dataset.f)) el.classList.add('sel'); });
+      }
+      if (state.tab === 'map') $$('#map-body tr[data-f]').forEach(el => { if (fids.has(+el.dataset.f)) el.classList.add('sel'); });
       if (s.type === 'node') $$(`#map-body tr[data-n="${s.id}"]`).forEach(el => el.classList.add('sel'));
       if (s.type === 'finding') $$(`#findings-list .fd[data-fi="${s.id}"]`).forEach(el => el.classList.add('sel'));
       if (scroll && first && s.type !== 'field') first.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
@@ -266,9 +370,11 @@ const App = (() => {
     if (!R || !R.ranges.length) return;
     let first = null;
     const ranges = R.ranges.slice().sort((a, b) => a[0] - b[0]);
-    for (const el of xmlView.lines) {
-      const no = +el.dataset.l;
-      if (ranges.some(([a, b]) => no >= a && no <= b)) { el.classList.add('hl'); first = first || el; }
+    for (const [a, b] of ranges) {
+      for (let no = a; no <= b; no++) {
+        const el = xmlView.byLine.get(no);
+        if (el) { el.classList.add('hl'); if (!first || +first.dataset.l > no) first = el; }
+      }
     }
     for (const nid of R.nids) $$(`[data-n="${nid}"]`, body).forEach(e => e.classList.add('hl-n'));
     if (scroll && first) first.scrollIntoView({ block: 'center' });
@@ -300,11 +406,15 @@ const App = (() => {
     const bin = atob(b64);
     const bytes = new Uint8Array(bin.length);
     for (let k = 0; k < bin.length; k++) bytes[k] = bin.charCodeAt(k);
-    let mime = (A.mime.value || 'application/octet-stream').trim();
-    if (A.info && A.info.isPdf) mime = 'application/pdf';
+    // typ určuje obsah (hlavička súboru), nie @mimeCode z XML – príloha text/html či SVG by inak mohla spustiť
+    // skript v tomto okne; všetko okrem PDF, PNG a JPEG sa preto dá len stiahnuť (application/octet-stream)
+    const b = bytes;
+    const mime = b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46 ? 'application/pdf'
+      : b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47 ? 'image/png'
+        : b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF ? 'image/jpeg' : 'application/octet-stream';
     const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
-    const name = (A.filename.fixed || A.filename.value || A.id.value || 'priloha').replace(/[/\\:*?"<>|]+/g, '_');
-    const r = { url, mime, name };
+    const name = (A.filename.fixed || A.filename.value || A.id.value || 'priloha').replace(/[/\\:*?"<>|\u0000-\u001f]+/g, '_').replace(/^[.\s]+/, '') || 'priloha';
+    const r = { url, mime, name, viewable: mime !== 'application/octet-stream' };
     blobCache.set(key, r);
     return r;
   }
@@ -312,7 +422,8 @@ const App = (() => {
   function attAction(kind, i) {
     let a;
     try { a = attBlob(i); } catch (e) { alert('Prílohu sa nepodarilo dekódovať: ' + e.message); return; }
-    if (kind === 'open') window.open(a.url, '_blank');
+    if ((kind === 'open' || kind === 'preview') && !a.viewable) kind = 'download';
+    if (kind === 'open') window.open(a.url, '_blank', 'noopener');
     else if (kind === 'download') {
       const link = document.createElement('a');
       link.href = a.url; link.download = a.name;

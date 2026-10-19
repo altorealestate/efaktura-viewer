@@ -12,10 +12,11 @@ Prehliadač a validátor e-faktúr **Peppol BIS Billing 3.0** (UBL 2.1) so slove
    (kód BT podľa EN 16931, XPath, číslo riadku).
    Funguje to aj opačne: v záložke **XML** stačí prejsť myšou po kóde. Príslušný údaj sa vo faktúre vyznačí a spojí
    čiarou s riadkom XML. Zobrazí sa aj karta s názvom poľa, popisom a číselníkom.
-4. V paneli **Nálezy** sú výsledky troch kontrol:
-   - oficiálna validácia EN 16931 + Peppol BIS 3.0,
-   - slovenské kontroly (Peppol ID 0245:DIČ, IČO, IBAN/BIC, variabilný symbol, DUZP, diakritika…),
-   - technická kontrola XML.
+4. V paneli **Nálezy** sú výsledky kontrol:
+   - oficiálna validácia v rovnakých stupňoch ako v sieti Peppol: schéma UBL 2.1 (XSD) a pravidlá EN 16931 + Peppol BIS 3.0,
+   - slovenské kontroly (Peppol ID 0245:DIČ, IČO, IČ DPH, IBAN/BIC, variabilný symbol, DUZP, sadzby DPH,
+     odkaz na pôvodnú faktúru pri dobropise, diakritika…),
+   - technická kontrola XML (well-formed, kódovanie, DOCTYPE).
 
 **Faktúry sa nikam neodosielajú.** Všetko spracovanie prebieha len vo vašom prehliadači. Stránka nenačítava nič
 z internetu a otvorený súbor neopustí váš počítač.
@@ -34,6 +35,7 @@ Potom zmeny nahrajte (commit + push). Stránka sa aktualizuje automaticky.
 ## Licencie a zdroje
 
 - Validačné pravidlá EN 16931 © CEN, licencia EUPL 1.2. Pravidlá Peppol BIS Billing 3.0 © OpenPeppol AISBL.
+  Schéma UBL 2.1 © OASIS Open.
   Zdroj: <https://docs.peppol.eu/poacc/billing/3.0/>.
   Podrobnosti sú vo [`viewer-src/rules/NOTICE.md`](viewer-src/rules/NOTICE.md).
 - SaxonJS 2.7 © Saxonica Ltd sa šíri ako súčasť aplikácie v súlade s licenciou
